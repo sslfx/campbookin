@@ -1,0 +1,158 @@
+package admin
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+type Repository struct {
+	pool *pgxpool.Pool
+}
+
+func NewRepository(pool *pgxpool.Pool) *Repository {
+	return &Repository{pool: pool}
+}
+
+func generageID() string {
+	id := uuid.New().String()
+	return id
+}
+func (r *Repository) IsOwner(ctx context.Context, userID, campID string) (bool, error) {
+	query := `
+        SELECT EXISTS (
+            SELECT 1 
+            FROM camp_users 
+            WHERE user_id = $1 
+              AND camp_id = $2 
+              AND role = 'DIRECTOR'
+        )
+    `
+
+	var exists bool
+	err := r.pool.QueryRow(ctx, query, userID, campID).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("IsOwnerERR: %w", err)
+	}
+
+	return exists, nil
+}
+
+func (r *Repository) CreateCamp(ctx context.Context, camp *Camp) error {
+	if camp.ID == "" {
+		id := generageID()
+		camp.ID = id
+	}
+	query := `INSERT INTO camps (id, name, description, address) VALUES ($1, $2, $3, $4)`
+	_, err := r.pool.Exec(ctx, query, camp.ID, camp.Name, camp.Description, camp.Address)
+	if err != nil {
+		return fmt.Errorf("CreateCameRep: %w", err)
+	}
+	return nil
+}
+
+func (r *Repository) DeleteCamp(ctx context.Context, id string) error {
+	query := `DELETE FROM camps WHERE id = $1`
+	_, err := r.pool.Exec(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("DeleteCamp: %w", err)
+	}
+	return nil
+}
+
+func (r *Repository) GetCamp(ctx context.Context, id string) (*Camp, error) {
+	if id == "" {
+		return nil, fmt.Errorf("GetCampRep: empty id")
+	}
+	query := `SELECT id,name,description,address FROM camps WHERE id = $1`
+	var camp Camp
+	err := r.pool.QueryRow(ctx, query, id).Scan(&camp.ID, &camp.Name, &camp.Description, &camp.Address)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, errors.New("GetCampRep:not found")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("GetCampRep: %w", err)
+	}
+	return &camp, nil
+}
+
+func (r *Repository) ListCamps(ctx context.Context) ([]*Camp, error) {
+	query := `SELECT id,name,description,address FROM camps`
+	var camps []*Camp
+	rows, err := r.pool.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("ListCamps: %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var camp Camp
+		if err := rows.Scan(&camp.ID, &camp.Name, &camp.Description, &camp.Address); err != nil {
+			return nil, fmt.Errorf("ListCamps: %w", err)
+		}
+		camps = append(camps, &camp)
+
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ListCamps: %w", err)
+	}
+	return camps, nil
+}
+
+func (r *Repository) ListCampsDirector(ctx context.Context, userID string) ([]*Camp, error) {
+	if userID == "" {
+		return nil, fmt.Errorf("unauthenticated")
+	}
+	query := `
+        SELECT c.id, c.name, c.description, c.address
+        FROM camps c
+        JOIN camp_users cu ON cu.camp_id = c.id
+        WHERE cu.user_id = $1
+    `
+
+	rows, err := r.pool.Query(ctx, query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("ListCamps: %w", err)
+	}
+	defer rows.Close()
+	var camps []*Camp
+	for rows.Next() {
+		var camp Camp
+		if err := rows.Scan(&camp.ID, &camp.Name, &camp.Description, &camp.Address); err != nil {
+			return nil, err
+		}
+		camps = append(camps, &camp)
+
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ListCamps: %w", err)
+	}
+	return camps, nil
+}
+
+func (r *Repository) UpdateCamp(ctx context.Context, camp *Camp) error {
+	query := `UPDATE camps SET name = $1, description = $2, address = $3 WHERE id = $4`
+	_, err := r.pool.Exec(ctx, query, camp.Name, camp.Description, camp.Address, camp.ID)
+	if err != nil {
+		return fmt.Errorf("UpdateCampRep: %w", err)
+	}
+	return nil
+}
+
+func (r *Repository) Assing(ctx context.Context, userID, campID string) error {
+	query := `
+	INSERT INTO camp_users (user_id, camp_id, role)
+	VALUES ($1, $2, 'DIRECTOR')
+	ON CONFLICT (user_id, camp_id)
+	DO NOTHING;
+	`
+	_, err := r.pool.Exec(ctx, query, userID, campID)
+	if err != nil {
+		return fmt.Errorf("Assing: %w", err)
+	}
+	return nil
+
+}
