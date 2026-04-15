@@ -1,4 +1,5 @@
 -- +goose Up
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE IF NOT EXISTS camps(
     id UUID PRIMARY KEY,
     name TEXT NOT NULL,
@@ -16,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users(
     id UUID PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    is_admin BOOLEAN DEFAULT FALSE
+    role TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS camp_users(
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -24,7 +25,13 @@ CREATE TABLE IF NOT EXISTS camp_users(
     role VARCHAR(20) NOT NULL,
     PRIMARY KEY (user_id, camp_id)
 );
-
+INSERT INTO users (id, email, password_hash, role)
+VALUES (
+           gen_random_uuid(),
+           'admin@camp.com',
+           '$2a$10$HANPtqutN50sU.cmNqtnLuURw4ySq/WS/taOK2jkPmzBxvsXRyEmO',
+           'SUPER_ADMIN'
+       );
 -- +goose Down
 DROP TABLE IF EXISTS shifts;
 DROP TABLE IF EXISTS camp_users;

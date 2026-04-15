@@ -1,0 +1,21 @@
+syntax = "proto3";
+option go_package = "campbookin/api/proto_output";
+
+message RegistrationRequest{
+  string email = 1 ;
+  string password = 2;
+}
+message RegistrationResponse{
+  string id = 1;
+}
+message LoginRequest{
+  string email = 1;
+  string password = 2;
+}
+message LoginResponse{
+  string token = 1;
+}
+service CampRegistration{
+  rpc Registration(RegistrationRequest) returns (RegistrationResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+}

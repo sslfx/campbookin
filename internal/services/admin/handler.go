@@ -1,7 +1,7 @@
 package admin
 
 import (
-	pb "campbookin/api/proto"
+	pb "campbookin/api/proto/proto_output/admin_proto"
 	"context"
 	"log/slog"
 
@@ -76,7 +76,7 @@ func (h *Handler) DeleteCamp(ctx context.Context, req *pb.DeleteCampRequest) (*p
 	}, nil
 }
 
-func (h *Handler) ListCamps(ctx context.Context) (*pb.ListCampsResponse, error) {
+func (h *Handler) ListCamps(ctx context.Context, request *pb.ListCampsRequest) (*pb.ListCampsResponse, error) {
 	h.logger.Info("ListCampsHandler: GRPC CALLED")
 	camps, err := h.service.ListCamps(ctx)
 	if err != nil {

@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.4
-// source: api/proto/admin.proto
+// source: admin_proto/admin.proto
 
-package proto
+package proto_output
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -55,11 +55,11 @@ func (x Status) String() string {
 }
 
 func (Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_proto_admin_proto_enumTypes[0].Descriptor()
+	return file_admin_proto_admin_proto_enumTypes[0].Descriptor()
 }
 
 func (Status) Type() protoreflect.EnumType {
-	return &file_api_proto_admin_proto_enumTypes[0]
+	return &file_admin_proto_admin_proto_enumTypes[0]
 }
 
 func (x Status) Number() protoreflect.EnumNumber {
@@ -68,7 +68,7 @@ func (x Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Status.Descriptor instead.
 func (Status) EnumDescriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{0}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{0}
 }
 
 type Camp struct {
@@ -83,7 +83,7 @@ type Camp struct {
 
 func (x *Camp) Reset() {
 	*x = Camp{}
-	mi := &file_api_proto_admin_proto_msgTypes[0]
+	mi := &file_admin_proto_admin_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +95,7 @@ func (x *Camp) String() string {
 func (*Camp) ProtoMessage() {}
 
 func (x *Camp) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[0]
+	mi := &file_admin_proto_admin_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,7 +108,7 @@ func (x *Camp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Camp.ProtoReflect.Descriptor instead.
 func (*Camp) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{0}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Camp) GetId() string {
@@ -155,7 +155,7 @@ type Shift struct {
 
 func (x *Shift) Reset() {
 	*x = Shift{}
-	mi := &file_api_proto_admin_proto_msgTypes[1]
+	mi := &file_admin_proto_admin_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -167,7 +167,7 @@ func (x *Shift) String() string {
 func (*Shift) ProtoMessage() {}
 
 func (x *Shift) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[1]
+	mi := &file_admin_proto_admin_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -180,7 +180,7 @@ func (x *Shift) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Shift.ProtoReflect.Descriptor instead.
 func (*Shift) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{1}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Shift) GetId() string {
@@ -251,7 +251,7 @@ type UpdateCampRequest struct {
 
 func (x *UpdateCampRequest) Reset() {
 	*x = UpdateCampRequest{}
-	mi := &file_api_proto_admin_proto_msgTypes[2]
+	mi := &file_admin_proto_admin_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -263,7 +263,7 @@ func (x *UpdateCampRequest) String() string {
 func (*UpdateCampRequest) ProtoMessage() {}
 
 func (x *UpdateCampRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[2]
+	mi := &file_admin_proto_admin_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -276,7 +276,7 @@ func (x *UpdateCampRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCampRequest.ProtoReflect.Descriptor instead.
 func (*UpdateCampRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{2}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UpdateCampRequest) GetId() string {
@@ -316,7 +316,7 @@ type UpdateCampResponse struct {
 
 func (x *UpdateCampResponse) Reset() {
 	*x = UpdateCampResponse{}
-	mi := &file_api_proto_admin_proto_msgTypes[3]
+	mi := &file_admin_proto_admin_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +328,7 @@ func (x *UpdateCampResponse) String() string {
 func (*UpdateCampResponse) ProtoMessage() {}
 
 func (x *UpdateCampResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[3]
+	mi := &file_admin_proto_admin_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,7 +341,7 @@ func (x *UpdateCampResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCampResponse.ProtoReflect.Descriptor instead.
 func (*UpdateCampResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{3}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *UpdateCampResponse) GetSuccess() bool {
@@ -360,7 +360,7 @@ type GetCampRequest struct {
 
 func (x *GetCampRequest) Reset() {
 	*x = GetCampRequest{}
-	mi := &file_api_proto_admin_proto_msgTypes[4]
+	mi := &file_admin_proto_admin_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -372,7 +372,7 @@ func (x *GetCampRequest) String() string {
 func (*GetCampRequest) ProtoMessage() {}
 
 func (x *GetCampRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[4]
+	mi := &file_admin_proto_admin_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -385,7 +385,7 @@ func (x *GetCampRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCampRequest.ProtoReflect.Descriptor instead.
 func (*GetCampRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{4}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetCampRequest) GetId() string {
@@ -404,7 +404,7 @@ type GetCampResponse struct {
 
 func (x *GetCampResponse) Reset() {
 	*x = GetCampResponse{}
-	mi := &file_api_proto_admin_proto_msgTypes[5]
+	mi := &file_admin_proto_admin_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -416,7 +416,7 @@ func (x *GetCampResponse) String() string {
 func (*GetCampResponse) ProtoMessage() {}
 
 func (x *GetCampResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[5]
+	mi := &file_admin_proto_admin_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -429,7 +429,7 @@ func (x *GetCampResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCampResponse.ProtoReflect.Descriptor instead.
 func (*GetCampResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{5}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetCampResponse) GetCamp() *Camp {
@@ -450,7 +450,7 @@ type CreateCampRequest struct {
 
 func (x *CreateCampRequest) Reset() {
 	*x = CreateCampRequest{}
-	mi := &file_api_proto_admin_proto_msgTypes[6]
+	mi := &file_admin_proto_admin_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +462,7 @@ func (x *CreateCampRequest) String() string {
 func (*CreateCampRequest) ProtoMessage() {}
 
 func (x *CreateCampRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[6]
+	mi := &file_admin_proto_admin_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,7 +475,7 @@ func (x *CreateCampRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCampRequest.ProtoReflect.Descriptor instead.
 func (*CreateCampRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{6}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateCampRequest) GetName() string {
@@ -508,7 +508,7 @@ type CreateCampResponse struct {
 
 func (x *CreateCampResponse) Reset() {
 	*x = CreateCampResponse{}
-	mi := &file_api_proto_admin_proto_msgTypes[7]
+	mi := &file_admin_proto_admin_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -520,7 +520,7 @@ func (x *CreateCampResponse) String() string {
 func (*CreateCampResponse) ProtoMessage() {}
 
 func (x *CreateCampResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[7]
+	mi := &file_admin_proto_admin_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -533,7 +533,7 @@ func (x *CreateCampResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCampResponse.ProtoReflect.Descriptor instead.
 func (*CreateCampResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{7}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateCampResponse) GetId() string {
@@ -552,7 +552,7 @@ type DeleteCampRequest struct {
 
 func (x *DeleteCampRequest) Reset() {
 	*x = DeleteCampRequest{}
-	mi := &file_api_proto_admin_proto_msgTypes[8]
+	mi := &file_admin_proto_admin_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -564,7 +564,7 @@ func (x *DeleteCampRequest) String() string {
 func (*DeleteCampRequest) ProtoMessage() {}
 
 func (x *DeleteCampRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[8]
+	mi := &file_admin_proto_admin_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -577,7 +577,7 @@ func (x *DeleteCampRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteCampRequest.ProtoReflect.Descriptor instead.
 func (*DeleteCampRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{8}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteCampRequest) GetId() string {
@@ -596,7 +596,7 @@ type DeleteCampResponse struct {
 
 func (x *DeleteCampResponse) Reset() {
 	*x = DeleteCampResponse{}
-	mi := &file_api_proto_admin_proto_msgTypes[9]
+	mi := &file_admin_proto_admin_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -608,7 +608,7 @@ func (x *DeleteCampResponse) String() string {
 func (*DeleteCampResponse) ProtoMessage() {}
 
 func (x *DeleteCampResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[9]
+	mi := &file_admin_proto_admin_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -621,7 +621,7 @@ func (x *DeleteCampResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteCampResponse.ProtoReflect.Descriptor instead.
 func (*DeleteCampResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{9}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *DeleteCampResponse) GetSuccess() bool {
@@ -639,7 +639,7 @@ type ListCampsRequest struct {
 
 func (x *ListCampsRequest) Reset() {
 	*x = ListCampsRequest{}
-	mi := &file_api_proto_admin_proto_msgTypes[10]
+	mi := &file_admin_proto_admin_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -651,7 +651,7 @@ func (x *ListCampsRequest) String() string {
 func (*ListCampsRequest) ProtoMessage() {}
 
 func (x *ListCampsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[10]
+	mi := &file_admin_proto_admin_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -664,7 +664,7 @@ func (x *ListCampsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCampsRequest.ProtoReflect.Descriptor instead.
 func (*ListCampsRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{10}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{10}
 }
 
 type ListCampsResponse struct {
@@ -676,7 +676,7 @@ type ListCampsResponse struct {
 
 func (x *ListCampsResponse) Reset() {
 	*x = ListCampsResponse{}
-	mi := &file_api_proto_admin_proto_msgTypes[11]
+	mi := &file_admin_proto_admin_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -688,7 +688,7 @@ func (x *ListCampsResponse) String() string {
 func (*ListCampsResponse) ProtoMessage() {}
 
 func (x *ListCampsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[11]
+	mi := &file_admin_proto_admin_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -701,7 +701,7 @@ func (x *ListCampsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCampsResponse.ProtoReflect.Descriptor instead.
 func (*ListCampsResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{11}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListCampsResponse) GetCamps() []*Camp {
@@ -726,7 +726,7 @@ type CreateShiftRequest struct {
 
 func (x *CreateShiftRequest) Reset() {
 	*x = CreateShiftRequest{}
-	mi := &file_api_proto_admin_proto_msgTypes[12]
+	mi := &file_admin_proto_admin_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -738,7 +738,7 @@ func (x *CreateShiftRequest) String() string {
 func (*CreateShiftRequest) ProtoMessage() {}
 
 func (x *CreateShiftRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[12]
+	mi := &file_admin_proto_admin_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -751,7 +751,7 @@ func (x *CreateShiftRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateShiftRequest.ProtoReflect.Descriptor instead.
 func (*CreateShiftRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{12}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CreateShiftRequest) GetName() string {
@@ -812,7 +812,7 @@ type CreateShiftResponse struct {
 
 func (x *CreateShiftResponse) Reset() {
 	*x = CreateShiftResponse{}
-	mi := &file_api_proto_admin_proto_msgTypes[13]
+	mi := &file_admin_proto_admin_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -824,7 +824,7 @@ func (x *CreateShiftResponse) String() string {
 func (*CreateShiftResponse) ProtoMessage() {}
 
 func (x *CreateShiftResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[13]
+	mi := &file_admin_proto_admin_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -837,7 +837,7 @@ func (x *CreateShiftResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateShiftResponse.ProtoReflect.Descriptor instead.
 func (*CreateShiftResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{13}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CreateShiftResponse) GetId() string {
@@ -856,7 +856,7 @@ type ListShiftsRequest struct {
 
 func (x *ListShiftsRequest) Reset() {
 	*x = ListShiftsRequest{}
-	mi := &file_api_proto_admin_proto_msgTypes[14]
+	mi := &file_admin_proto_admin_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -868,7 +868,7 @@ func (x *ListShiftsRequest) String() string {
 func (*ListShiftsRequest) ProtoMessage() {}
 
 func (x *ListShiftsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[14]
+	mi := &file_admin_proto_admin_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -881,7 +881,7 @@ func (x *ListShiftsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListShiftsRequest.ProtoReflect.Descriptor instead.
 func (*ListShiftsRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{14}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListShiftsRequest) GetCampId() string {
@@ -900,7 +900,7 @@ type ListShiftsResponse struct {
 
 func (x *ListShiftsResponse) Reset() {
 	*x = ListShiftsResponse{}
-	mi := &file_api_proto_admin_proto_msgTypes[15]
+	mi := &file_admin_proto_admin_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -912,7 +912,7 @@ func (x *ListShiftsResponse) String() string {
 func (*ListShiftsResponse) ProtoMessage() {}
 
 func (x *ListShiftsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[15]
+	mi := &file_admin_proto_admin_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -925,7 +925,7 @@ func (x *ListShiftsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListShiftsResponse.ProtoReflect.Descriptor instead.
 func (*ListShiftsResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{15}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListShiftsResponse) GetShifts() []*Shift {
@@ -945,7 +945,7 @@ type AssignRequest struct {
 
 func (x *AssignRequest) Reset() {
 	*x = AssignRequest{}
-	mi := &file_api_proto_admin_proto_msgTypes[16]
+	mi := &file_admin_proto_admin_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -957,7 +957,7 @@ func (x *AssignRequest) String() string {
 func (*AssignRequest) ProtoMessage() {}
 
 func (x *AssignRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[16]
+	mi := &file_admin_proto_admin_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -970,7 +970,7 @@ func (x *AssignRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignRequest.ProtoReflect.Descriptor instead.
 func (*AssignRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{16}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AssignRequest) GetUserId() string {
@@ -996,7 +996,7 @@ type AssignResponse struct {
 
 func (x *AssignResponse) Reset() {
 	*x = AssignResponse{}
-	mi := &file_api_proto_admin_proto_msgTypes[17]
+	mi := &file_admin_proto_admin_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1008,7 +1008,7 @@ func (x *AssignResponse) String() string {
 func (*AssignResponse) ProtoMessage() {}
 
 func (x *AssignResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_admin_proto_msgTypes[17]
+	mi := &file_admin_proto_admin_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1021,7 +1021,7 @@ func (x *AssignResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignResponse.ProtoReflect.Descriptor instead.
 func (*AssignResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_admin_proto_rawDescGZIP(), []int{17}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AssignResponse) GetSuccess() bool {
@@ -1031,11 +1031,11 @@ func (x *AssignResponse) GetSuccess() bool {
 	return false
 }
 
-var File_api_proto_admin_proto protoreflect.FileDescriptor
+var File_admin_proto_admin_proto protoreflect.FileDescriptor
 
-const file_api_proto_admin_proto_rawDesc = "" +
+const file_admin_proto_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x15api/proto/admin.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"f\n" +
+	"\x17admin_proto/admin.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"f\n" +
 	"\x04Camp\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1111,23 +1111,23 @@ const file_api_proto_admin_proto_rawDesc = "" +
 	"\tListCamps\x12\x11.ListCampsRequest\x1a\x12.ListCampsResponse\x128\n" +
 	"\vCreateShift\x12\x13.CreateShiftRequest\x1a\x14.CreateShiftResponse\x125\n" +
 	"\n" +
-	"ListShifts\x12\x12.ListShiftsRequest\x1a\x13.ListShiftsResponseB\x16Z\x14campbookin/api/protob\x06proto3"
+	"ListShifts\x12\x12.ListShiftsRequest\x1a\x13.ListShiftsResponseB\x1dZ\x1bcampbookin/api/proto_outputb\x06proto3"
 
 var (
-	file_api_proto_admin_proto_rawDescOnce sync.Once
-	file_api_proto_admin_proto_rawDescData []byte
+	file_admin_proto_admin_proto_rawDescOnce sync.Once
+	file_admin_proto_admin_proto_rawDescData []byte
 )
 
-func file_api_proto_admin_proto_rawDescGZIP() []byte {
-	file_api_proto_admin_proto_rawDescOnce.Do(func() {
-		file_api_proto_admin_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_proto_admin_proto_rawDesc), len(file_api_proto_admin_proto_rawDesc)))
+func file_admin_proto_admin_proto_rawDescGZIP() []byte {
+	file_admin_proto_admin_proto_rawDescOnce.Do(func() {
+		file_admin_proto_admin_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_admin_proto_admin_proto_rawDesc), len(file_admin_proto_admin_proto_rawDesc)))
 	})
-	return file_api_proto_admin_proto_rawDescData
+	return file_admin_proto_admin_proto_rawDescData
 }
 
-var file_api_proto_admin_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_proto_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
-var file_api_proto_admin_proto_goTypes = []any{
+var file_admin_proto_admin_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_admin_proto_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_admin_proto_admin_proto_goTypes = []any{
 	(Status)(0),                   // 0: Status
 	(*Camp)(nil),                  // 1: Camp
 	(*Shift)(nil),                 // 2: Shift
@@ -1149,7 +1149,7 @@ var file_api_proto_admin_proto_goTypes = []any{
 	(*AssignResponse)(nil),        // 18: AssignResponse
 	(*timestamppb.Timestamp)(nil), // 19: google.protobuf.Timestamp
 }
-var file_api_proto_admin_proto_depIdxs = []int32{
+var file_admin_proto_admin_proto_depIdxs = []int32{
 	19, // 0: Shift.start_time:type_name -> google.protobuf.Timestamp
 	19, // 1: Shift.end_time:type_name -> google.protobuf.Timestamp
 	0,  // 2: Shift.status:type_name -> Status
@@ -1182,27 +1182,27 @@ var file_api_proto_admin_proto_depIdxs = []int32{
 	0,  // [0:9] is the sub-list for field type_name
 }
 
-func init() { file_api_proto_admin_proto_init() }
-func file_api_proto_admin_proto_init() {
-	if File_api_proto_admin_proto != nil {
+func init() { file_admin_proto_admin_proto_init() }
+func file_admin_proto_admin_proto_init() {
+	if File_admin_proto_admin_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_admin_proto_rawDesc), len(file_api_proto_admin_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_proto_admin_proto_rawDesc), len(file_admin_proto_admin_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_proto_admin_proto_goTypes,
-		DependencyIndexes: file_api_proto_admin_proto_depIdxs,
-		EnumInfos:         file_api_proto_admin_proto_enumTypes,
-		MessageInfos:      file_api_proto_admin_proto_msgTypes,
+		GoTypes:           file_admin_proto_admin_proto_goTypes,
+		DependencyIndexes: file_admin_proto_admin_proto_depIdxs,
+		EnumInfos:         file_admin_proto_admin_proto_enumTypes,
+		MessageInfos:      file_admin_proto_admin_proto_msgTypes,
 	}.Build()
-	File_api_proto_admin_proto = out.File
-	file_api_proto_admin_proto_goTypes = nil
-	file_api_proto_admin_proto_depIdxs = nil
+	File_admin_proto_admin_proto = out.File
+	file_admin_proto_admin_proto_goTypes = nil
+	file_admin_proto_admin_proto_depIdxs = nil
 }

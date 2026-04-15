@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v6.33.4
-// source: api/proto/admin.proto
+// source: admin_proto/admin.proto
 
-package proto
+package proto_output
 
 import (
 	context "context"
@@ -383,5 +383,5 @@ var CampAdmin_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/proto/admin.proto",
+	Metadata: "admin_proto/admin.proto",
 }

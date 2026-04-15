@@ -22,26 +22,6 @@ func generageID() string {
 	id := uuid.New().String()
 	return id
 }
-func (r *Repository) IsOwner(ctx context.Context, userID, campID string) (bool, error) {
-	query := `
-        SELECT EXISTS (
-            SELECT 1 
-            FROM camp_users 
-            WHERE user_id = $1 
-              AND camp_id = $2 
-              AND role = 'DIRECTOR'
-        )
-    `
-
-	var exists bool
-	err := r.pool.QueryRow(ctx, query, userID, campID).Scan(&exists)
-	if err != nil {
-		return false, fmt.Errorf("IsOwnerERR: %w", err)
-	}
-
-	return exists, nil
-}
-
 func (r *Repository) CreateCamp(ctx context.Context, camp *Camp) error {
 	if camp.ID == "" {
 		id := generageID()
@@ -155,4 +135,36 @@ func (r *Repository) Assing(ctx context.Context, userID, campID string) error {
 	}
 	return nil
 
+}
+func (r *Repository) GetUserRole(ctx context.Context, userID string) (string, error) {
+	var role string
+	err := r.pool.QueryRow(ctx,
+		"SELECT role FROM users WHERE id = $1",
+		userID,
+	).Scan(&role)
+
+	if err != nil {
+		return "", err
+	}
+
+	return role, nil
+}
+func (r *Repository) IsDirector(ctx context.Context, userID, campID string) (bool, error) {
+	query := `
+        SELECT EXISTS (
+            SELECT 1 
+            FROM camp_users 
+            WHERE user_id = $1 
+              AND camp_id = $2 
+              AND role = 'DIRECTOR'
+        )
+    `
+
+	var exists bool
+	err := r.pool.QueryRow(ctx, query, userID, campID).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("IsOwnerERR: %w", err)
+	}
+
+	return exists, nil
 }

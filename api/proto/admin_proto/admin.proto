@@ -1,6 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/timestamp.proto";
-option go_package = "campbookin/api/proto";
+option go_package = "campbookin/api/proto_output";
 
 message Camp{
   string id = 1;

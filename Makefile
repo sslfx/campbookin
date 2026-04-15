@@ -1,24 +1,26 @@
-# Переменные для удобства
-DOCKER_COMPOSE = docker-compose -f deployments/docker-compose.yaml
-PROTO_DIR = pkg/proto
-MODULE_NAME = github.com/max/camp
-
 .PHONY: proto build up down
 
-
+PROTO_DIR=./api/proto
+OUT_DIR=./api/proto/proto_output
 proto:
-	protoc --proto_path=. \
-           --go_out=. --go_opt=paths=source_relative \
-           --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-           api/proto/admin.proto
+	@mkdir -p $(OUT_DIR)
+	protoc \
+    		-I=$(PROTO_DIR) \
+    		--go_out=$(OUT_DIR) \
+    		--go_opt=paths=source_relative \
+    		--go-grpc_out=$(OUT_DIR) \
+    		--go-grpc_opt=paths=source_relative \
+    		$(shell find $(PROTO_DIR) -name "*.proto")
 	@echo "code generated"
 
 build:
-	$(DOCKER_COMPOSE) build
+	docker-compose up --build -d
+	@echo "Services are running"
 
 up:
-	$(DOCKER_COMPOSE) up -d
+	docker-compose up -v
 	@echo "Services are running"
 
 down:
-	$(DOCKER_COMPOSE) down
+	docker-compose down -v
+	@echo "Shutting down"

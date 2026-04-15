@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: camp_pg
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: campbookin
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth:
+    build:
+      context: .
+      dockerfile: internal/services/registration/Dockerfile
+    container_name: auth_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/campbookin?sslmode=disable
+      PORT1: "50051"
+    ports:
+      - "50051:50051"
+
+  admin:
+    build:
+      context: .
+      dockerfile: internal/services/admin/Dockerfile
+    container_name: admin_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/campbookin?sslmode=disable
+      PORT2: "50052"
+    ports:
+      - "50052:50052"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: internal/services/api-gateway/Dockerfile
+    container_name: gateway_service
+    depends_on:
+      - auth
+      - admin
+    environment:
+      AUTH_ADDR: auth:50051
+      ADMIN_ADDR: admin:50052
+      PASS_SECRET: secretsslxd
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

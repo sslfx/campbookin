@@ -21,8 +21,9 @@ type CampAdminRepository interface {
 	ListCamps(ctx context.Context) ([]*Camp, error)
 	ListCampsDirector(ctx context.Context, userID string) ([]*Camp, error)
 	UpdateCamp(ctx context.Context, camp *Camp) error
-	IsOwner(ctx context.Context, userID, campID string) (bool, error)
+	IsDirector(ctx context.Context, userID, campID string) (bool, error)
 	Assing(ctx context.Context, userID, campID string) error
+	GetUserRole(ctx context.Context, userID string) (string, error)
 }
 type Service struct {
 	repo CampAdminRepository
@@ -32,60 +33,25 @@ func NewService(repo CampAdminRepository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) Assign(ctx context.Context, userID, campID string) error {
-	role := GetRoleFromContext(ctx)
-	if userID == "" || campID == "" {
-		return fmt.Errorf("userID or campID is empty")
-	}
-	if role != "SUPER_ADMIN" {
-		return fmt.Errorf("AssignDirector: forbidden")
-	}
-	_, err := s.repo.GetCamp(ctx, campID)
-	if err != nil {
-		return fmt.Errorf("AssignDirector:GetCamp: %w", err)
-	}
-	err = s.repo.Assing(ctx, userID, campID)
-	if err != nil {
-		return fmt.Errorf("AssignDirector:repo: %w", err)
-	}
-	return nil
-
-}
-
 func (s *Service) authorize(ctx context.Context, action string, campID string) error {
-	role := GetRoleFromContext(ctx)
 	userID := GetUserIDFromContext(ctx)
-
-	switch role {
-
-	case "SUPER_ADMIN":
-		// супер админ может всё
+	globalRole, err := s.repo.GetUserRole(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if globalRole == "SUPER_ADMIN" {
 		return nil
-
-	case "DIRECTOR":
-		switch action {
-
-		case ActionGetCamp, ActionUpdateCamp, ActionDeleteCamp:
-			ok, err := s.repo.IsOwner(ctx, userID, campID)
-			if err != nil {
-				return fmt.Errorf("authorize:IsOwner: %w", err)
-			}
-			if !ok {
-				return fmt.Errorf("authorize: forbidden")
-			}
+	}
+	isDirector, _ := s.repo.IsDirector(ctx, userID, campID)
+	if isDirector {
+		if action == ActionGetCamp || action == ActionUpdateCamp || action == ActionDeleteCamp {
 			return nil
-
-		case ActionListCamps:
-			// список разрешён — но только свои лагеря (логика уже в repo)
-			return nil
-
-		default:
+		}
+		if action == ActionCreateCamp || action == ActionListCamps {
 			return fmt.Errorf("authorize: forbidden for director")
 		}
-
-	default:
-		return fmt.Errorf("authorize: unknown role")
 	}
+	return fmt.Errorf("forbidden")
 }
 
 func (s *Service) CreateCamp(ctx context.Context, name, description, address string) (*Camp, error) {
@@ -154,20 +120,22 @@ func (s *Service) UpdateCamp(ctx context.Context, id, name, description, address
 }
 
 func (s *Service) ListCamps(ctx context.Context) ([]*Camp, error) {
-	role := GetRoleFromContext(ctx)
-	userID := GetUserIDFromContext(ctx)
-
-	if err := s.authorize(ctx, ActionListCamps, ""); err != nil {
-		return nil, err
+	err := s.authorize(ctx, ActionListCamps, "")
+	if err != nil {
+		return nil, fmt.Errorf("authorize:get role: %w", err)
 	}
+	return s.repo.ListCamps(ctx)
+}
 
-	if role == "SUPER_ADMIN" {
-		return s.repo.ListCamps(ctx)
+func (s *Service) Assign(ctx context.Context, userID, campID string) error {
+	if userID == "" || campID == "" {
+		return fmt.Errorf("invalid input")
 	}
-
-	if role == "DIRECTOR" {
-		return s.repo.ListCampsDirector(ctx, userID)
+	if err := s.authorize(ctx, ActionAssignDirector, campID); err != nil {
+		return err
 	}
-
-	return nil, fmt.Errorf("forbidden")
+	if _, err := s.repo.GetCamp(ctx, campID); err != nil {
+		return fmt.Errorf("camp not found: %w", err)
+	}
+	return s.repo.Assing(ctx, userID, campID)
 }
