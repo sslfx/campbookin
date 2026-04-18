@@ -10,14 +10,20 @@ CREATE TABLE IF NOT EXISTS shifts(
     id UUID PRIMARY KEY,
     camp_id UUID REFERENCES camps(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
+    description TEXT NOT NULL,
     start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NOT NULL
+    end_time TIMESTAMP NOT NULL,
+    price INT NOT NULL,
+    capacity INT NOT NULL,
+    status INT NOT NULL
+
 );
 CREATE TABLE IF NOT EXISTS users(
     id UUID PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role TEXT NOT NULL
+    role TEXT NOT NULL,
+    name TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS camp_users(
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -25,12 +31,20 @@ CREATE TABLE IF NOT EXISTS camp_users(
     role VARCHAR(20) NOT NULL,
     PRIMARY KEY (user_id, camp_id)
 );
-INSERT INTO users (id, email, password_hash, role)
+CREATE TABLE IF NOT EXISTS bookings (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL,
+    shift_id UUID NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE (user_id, shift_id)
+);
+INSERT INTO users (id, email, password_hash, role, name)
 VALUES (
            gen_random_uuid(),
            'admin@camp.com',
            '$2a$10$HANPtqutN50sU.cmNqtnLuURw4ySq/WS/taOK2jkPmzBxvsXRyEmO',
-           'SUPER_ADMIN'
+           'SUPER_ADMIN',
+            'MAX'
        );
 -- +goose Down
 DROP TABLE IF EXISTS shifts;

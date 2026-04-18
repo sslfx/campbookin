@@ -1,12 +1,12 @@
-FROM golang:1.25.4
-
+FROM golang:1.25-alpine AS builder
 WORKDIR /app
-
+# Копируем зависимости из корня (контекст будет корень)
 COPY go.mod go.sum ./
 RUN go mod download
-
 COPY . .
+RUN go build -o /app/reg-service ./cmd/reg/main.go
 
-RUN go build -o reg ./cmd/reg
-
-CMD ["./reg"]
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=builder /app/reg-service .
+CMD ["./reg-service"]

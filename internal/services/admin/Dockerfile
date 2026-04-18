@@ -1,12 +1,11 @@
-FROM golang:1.25.4
-
+FROM golang:1.25-alpine AS builder
 WORKDIR /app
-
 COPY go.mod go.sum ./
 RUN go mod download
-
 COPY . .
+RUN go build -o /app/admin-service ./cmd/admin/main.go
 
-RUN go build -o admin ./cmd/admin
-
-CMD ["./admin"]
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=builder /app/admin-service .
+CMD ["./admin-service"]

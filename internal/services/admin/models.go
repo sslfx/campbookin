@@ -18,12 +18,13 @@ const (
 )
 
 type Shift struct {
-	ID        string
-	Name      string
-	StartTime time.Time
-	EndTime   time.Time
-	Capacity  int32
-	Price     int32
-	CampID    string
-	Status    ShiftStatus
+	ID          string
+	Name        string
+	Description string
+	StartTime   time.Time
+	EndTime     time.Time
+	Capacity    int32
+	Price       int32
+	CampID      string
+	Status      ShiftStatus
 }

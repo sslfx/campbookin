@@ -26,7 +26,9 @@ const (
 	CampAdmin_UpdateCamp_FullMethodName  = "/CampAdmin/UpdateCamp"
 	CampAdmin_ListCamps_FullMethodName   = "/CampAdmin/ListCamps"
 	CampAdmin_CreateShift_FullMethodName = "/CampAdmin/CreateShift"
+	CampAdmin_GetShift_FullMethodName    = "/CampAdmin/GetShift"
 	CampAdmin_ListShifts_FullMethodName  = "/CampAdmin/ListShifts"
+	CampAdmin_BookShift_FullMethodName   = "/CampAdmin/BookShift"
 )
 
 // CampAdminClient is the client API for CampAdmin service.
@@ -40,7 +42,9 @@ type CampAdminClient interface {
 	UpdateCamp(ctx context.Context, in *UpdateCampRequest, opts ...grpc.CallOption) (*UpdateCampResponse, error)
 	ListCamps(ctx context.Context, in *ListCampsRequest, opts ...grpc.CallOption) (*ListCampsResponse, error)
 	CreateShift(ctx context.Context, in *CreateShiftRequest, opts ...grpc.CallOption) (*CreateShiftResponse, error)
+	GetShift(ctx context.Context, in *GetShiftRequest, opts ...grpc.CallOption) (*GetShiftResponse, error)
 	ListShifts(ctx context.Context, in *ListShiftsRequest, opts ...grpc.CallOption) (*ListShiftsResponse, error)
+	BookShift(ctx context.Context, in *BookShiftRequest, opts ...grpc.CallOption) (*BookShiftResponse, error)
 }
 
 type campAdminClient struct {
@@ -121,10 +125,30 @@ func (c *campAdminClient) CreateShift(ctx context.Context, in *CreateShiftReques
 	return out, nil
 }
 
+func (c *campAdminClient) GetShift(ctx context.Context, in *GetShiftRequest, opts ...grpc.CallOption) (*GetShiftResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetShiftResponse)
+	err := c.cc.Invoke(ctx, CampAdmin_GetShift_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *campAdminClient) ListShifts(ctx context.Context, in *ListShiftsRequest, opts ...grpc.CallOption) (*ListShiftsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListShiftsResponse)
 	err := c.cc.Invoke(ctx, CampAdmin_ListShifts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *campAdminClient) BookShift(ctx context.Context, in *BookShiftRequest, opts ...grpc.CallOption) (*BookShiftResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BookShiftResponse)
+	err := c.cc.Invoke(ctx, CampAdmin_BookShift_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +166,9 @@ type CampAdminServer interface {
 	UpdateCamp(context.Context, *UpdateCampRequest) (*UpdateCampResponse, error)
 	ListCamps(context.Context, *ListCampsRequest) (*ListCampsResponse, error)
 	CreateShift(context.Context, *CreateShiftRequest) (*CreateShiftResponse, error)
+	GetShift(context.Context, *GetShiftRequest) (*GetShiftResponse, error)
 	ListShifts(context.Context, *ListShiftsRequest) (*ListShiftsResponse, error)
+	BookShift(context.Context, *BookShiftRequest) (*BookShiftResponse, error)
 	mustEmbedUnimplementedCampAdminServer()
 }
 
@@ -174,8 +200,14 @@ func (UnimplementedCampAdminServer) ListCamps(context.Context, *ListCampsRequest
 func (UnimplementedCampAdminServer) CreateShift(context.Context, *CreateShiftRequest) (*CreateShiftResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateShift not implemented")
 }
+func (UnimplementedCampAdminServer) GetShift(context.Context, *GetShiftRequest) (*GetShiftResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetShift not implemented")
+}
 func (UnimplementedCampAdminServer) ListShifts(context.Context, *ListShiftsRequest) (*ListShiftsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListShifts not implemented")
+}
+func (UnimplementedCampAdminServer) BookShift(context.Context, *BookShiftRequest) (*BookShiftResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BookShift not implemented")
 }
 func (UnimplementedCampAdminServer) mustEmbedUnimplementedCampAdminServer() {}
 func (UnimplementedCampAdminServer) testEmbeddedByValue()                   {}
@@ -324,6 +356,24 @@ func _CampAdmin_CreateShift_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CampAdmin_GetShift_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetShiftRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CampAdminServer).GetShift(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CampAdmin_GetShift_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CampAdminServer).GetShift(ctx, req.(*GetShiftRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CampAdmin_ListShifts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListShiftsRequest)
 	if err := dec(in); err != nil {
@@ -338,6 +388,24 @@ func _CampAdmin_ListShifts_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CampAdminServer).ListShifts(ctx, req.(*ListShiftsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CampAdmin_BookShift_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookShiftRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CampAdminServer).BookShift(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CampAdmin_BookShift_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CampAdminServer).BookShift(ctx, req.(*BookShiftRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -378,8 +446,16 @@ var CampAdmin_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CampAdmin_CreateShift_Handler,
 		},
 		{
+			MethodName: "GetShift",
+			Handler:    _CampAdmin_GetShift_Handler,
+		},
+		{
 			MethodName: "ListShifts",
 			Handler:    _CampAdmin_ListShifts_Handler,
+		},
+		{
+			MethodName: "BookShift",
+			Handler:    _CampAdmin_BookShift_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

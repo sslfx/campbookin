@@ -17,7 +17,8 @@ enum Status {
 message Shift {
   string id = 1;
   string name = 2;
-  google.protobuf.Timestamp start_time = 3;
+  string description = 3;
+  google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 4;
   int32 capacity = 5;
   int32 price = 6;
@@ -59,14 +60,22 @@ message ListCampsRequest{}
 message ListCampsResponse{
   repeated Camp camps = 1;
 }
+message AssignRequest{
+  string user_id = 1;
+  string camp_id = 2;
+}
+message AssignResponse{
+  bool success = 1;
+}
 message CreateShiftRequest{
-  string name = 2;
-  google.protobuf.Timestamp start_time = 3;
-  google.protobuf.Timestamp end_time = 4;
-  int32 capacity = 5;
-  int32 price = 6;
-  string camp_id = 7;
-  Status status = 8;
+  string name = 1;
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+  int32 capacity = 4;
+  int32 price = 5;
+  string camp_id = 6;
+  Status status = 7;
+  string description = 8;
 }
 message CreateShiftResponse{
   string id = 1;
@@ -77,14 +86,21 @@ message ListShiftsRequest{
 message ListShiftsResponse{
   repeated Shift shifts = 1;
 }
-message AssignRequest{
-  string user_id = 1;
-  string camp_id = 2;
+message BookShiftRequest{
+  string shift_id = 1;
+  string user_id = 2;
 }
-message AssignResponse{
+message BookShiftResponse{
   bool success = 1;
 }
+message GetShiftRequest{
+  string id = 1;
+}
+message GetShiftResponse{
+  Shift shift = 1;
+}
 service CampAdmin{
+
   rpc Assign(AssignRequest) returns (AssignResponse);
 
   rpc CreateCamp(CreateCampRequest) returns (CreateCampResponse);
@@ -99,7 +115,11 @@ service CampAdmin{
 
   rpc CreateShift(CreateShiftRequest) returns (CreateShiftResponse);
 
+  rpc GetShift(GetShiftRequest) returns (GetShiftResponse);
+
   rpc ListShifts(ListShiftsRequest) returns (ListShiftsResponse);
+
+  rpc BookShift(BookShiftRequest) returns (BookShiftResponse);
 
 
 }

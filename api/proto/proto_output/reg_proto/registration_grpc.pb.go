@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	CampRegistration_Registration_FullMethodName = "/CampRegistration/Registration"
 	CampRegistration_Login_FullMethodName        = "/CampRegistration/Login"
+	CampRegistration_GetUser_FullMethodName      = "/CampRegistration/GetUser"
 )
 
 // CampRegistrationClient is the client API for CampRegistration service.
@@ -29,6 +30,7 @@ const (
 type CampRegistrationClient interface {
 	Registration(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*RegistrationResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 }
 
 type campRegistrationClient struct {
@@ -59,12 +61,23 @@ func (c *campRegistrationClient) Login(ctx context.Context, in *LoginRequest, op
 	return out, nil
 }
 
+func (c *campRegistrationClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserResponse)
+	err := c.cc.Invoke(ctx, CampRegistration_GetUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CampRegistrationServer is the server API for CampRegistration service.
 // All implementations must embed UnimplementedCampRegistrationServer
 // for forward compatibility.
 type CampRegistrationServer interface {
 	Registration(context.Context, *RegistrationRequest) (*RegistrationResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	mustEmbedUnimplementedCampRegistrationServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedCampRegistrationServer) Registration(context.Context, *Regist
 }
 func (UnimplementedCampRegistrationServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedCampRegistrationServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedCampRegistrationServer) mustEmbedUnimplementedCampRegistrationServer() {}
 func (UnimplementedCampRegistrationServer) testEmbeddedByValue()                          {}
@@ -138,6 +154,24 @@ func _CampRegistration_Login_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CampRegistration_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CampRegistrationServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CampRegistration_GetUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CampRegistrationServer).GetUser(ctx, req.(*GetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CampRegistration_ServiceDesc is the grpc.ServiceDesc for CampRegistration service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var CampRegistration_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _CampRegistration_Login_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _CampRegistration_GetUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

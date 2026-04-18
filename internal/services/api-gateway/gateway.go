@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Gateway struct {
@@ -26,6 +28,7 @@ func NewGateway(authClient pb1.CampRegistrationClient, adminClient pb2.CampAdmin
 func (gw *Gateway) RegisterRoutes(r *chi.Mux) {
 	r.Post("/registration", gw.Register)
 	r.Post("/login", gw.Login)
+
 	r.Group(func(protected chi.Router) {
 		protected.Use(gw.JWTMiddleware)
 		protected.Post("/camps", gw.CreateCamp)
@@ -34,13 +37,15 @@ func (gw *Gateway) RegisterRoutes(r *chi.Mux) {
 		protected.Get("/camps/{id}", gw.GetCamp)
 		protected.Get("/camps", gw.ListCamps)
 		protected.Post("/camps/{id}/assign", gw.AssignDirector)
-
+		protected.Post("/shifts", gw.CreateShift)
+		protected.Post("/shifts/{id}/book", gw.BookShift)
 	})
 }
 
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Name     string `json:"name"`
 }
 type LoginResponse struct {
 	Token string `json:"token"`
@@ -81,6 +86,7 @@ func (gw *Gateway) Register(w http.ResponseWriter, req *http.Request) {
 	regResp, err := gw.authClient.Registration(req.Context(), &pb1.RegistrationRequest{
 		Email:    regReq.Email,
 		Password: regReq.Password,
+		Name:     regReq.Name,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -264,6 +270,9 @@ func (gw *Gateway) ListCamps(w http.ResponseWriter, req *http.Request) {
 type AssignDirectorRequest struct {
 	UserID string `json:"user_id"`
 }
+type AssignDirectorResponse struct {
+	Success bool `json:"success"`
+}
 
 func (gw *Gateway) AssignDirector(w http.ResponseWriter, req *http.Request) {
 	campID := chi.URLParam(req, "id")
@@ -286,7 +295,80 @@ func (gw *Gateway) AssignDirector(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(map[string]bool{"success": resp.Success}); err != nil {
+	if err := json.NewEncoder(w).Encode(AssignDirectorResponse{Success: resp.Success}); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+type BookShiftResponse struct {
+	Success bool `json:"success"`
+}
+
+func (gw *Gateway) BookShift(w http.ResponseWriter, req *http.Request) {
+	shiftID := chi.URLParam(req, "id")
+	ctx := gw.withAuthContext(req)
+	userID, _ := req.Context().Value("userID").(string)
+	resp, err := gw.adminClient.BookShift(ctx, &pb2.BookShiftRequest{
+		ShiftId: shiftID,
+		UserId:  userID,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(BookShiftResponse{Success: resp.Success}); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+type ShiftStatus int
+
+const (
+	ShiftStatusUnknown  ShiftStatus = iota // 0
+	ShiftStatusActive                      // 1
+	ShiftStatusInactive                    // 2
+)
+
+type CreateShiftRequest struct {
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	StartTime   time.Time   `json:"start_time"`
+	EndTime     time.Time   `json:"end_time"`
+	Capacity    int32       `json:"capacity"`
+	Price       int32       `json:"price"`
+	CampID      string      `json:"camp_id"`
+	Status      ShiftStatus `json:"status"`
+}
+
+func (gw *Gateway) CreateShift(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("CreateCamp Handler Started")
+	var createShiftReq CreateShiftRequest
+	if err := json.NewDecoder(req.Body).Decode(&createShiftReq); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	ctx := gw.withAuthContext(req)
+	resp, err := gw.adminClient.CreateShift(ctx, &pb2.CreateShiftRequest{
+		Name:        createShiftReq.Name,
+		Description: createShiftReq.Description,
+		StartTime:   timestamppb.New(createShiftReq.StartTime),
+		EndTime:     timestamppb.New(createShiftReq.EndTime),
+		Capacity:    createShiftReq.Capacity,
+		CampId:      createShiftReq.CampID,
+		Status:      pb2.Status(createShiftReq.Status),
+		Price:       createShiftReq.Price,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(CreateCampResponse{
+		Id: resp.Id,
+	}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

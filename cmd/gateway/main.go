@@ -22,14 +22,14 @@ func main() {
 		os.Exit(1)
 	}
 	secret := pkg.MustGet("PASS_SECRET")
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	connAuth, err := grpc.DialContext(ctx, "auth:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connAuth, err := grpc.NewClient("reg:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer connAuth.Close()
-	connAdmin, err := grpc.DialContext(ctx, "admin:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connAdmin, err := grpc.NewClient("admin:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

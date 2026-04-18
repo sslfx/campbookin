@@ -168,3 +168,38 @@ func (r *Repository) IsDirector(ctx context.Context, userID, campID string) (boo
 
 	return exists, nil
 }
+
+func (r *Repository) CreateShift(ctx context.Context, shift *Shift) error {
+	if shift.ID == "" {
+		id := generageID()
+		shift.ID = id
+	}
+	query := `INSERT INTO shifts (id, camp_id, name, description,start_time, end_time, price, capacity, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+	_, err := r.pool.Exec(ctx, query, shift.ID, shift.CampID, shift.Name, shift.Description, shift.StartTime, shift.EndTime, shift.Price, shift.Capacity, shift.Status)
+	if err != nil {
+		return fmt.Errorf("CreateShift: %w", err)
+	}
+	return nil
+}
+
+func (r *Repository) GetShift(ctx context.Context, id string) (*Shift, error) {
+	if id == "" {
+		return nil, fmt.Errorf("unauthenticated")
+	}
+	query := `SELECT id,camp_id,description,name,start_time,end_time,price,capacity,status FROM shifts WHERE id = $1`
+	var shift Shift
+	err := r.pool.QueryRow(ctx, query, id).Scan(&shift.ID, &shift.CampID, &shift.Description, &shift.Name, &shift.StartTime, &shift.EndTime, &shift.Price, &shift.Capacity, &shift.Status)
+	if err != nil {
+		return nil, fmt.Errorf("GetShift: %w", err)
+	}
+	return &shift, nil
+}
+func (r *Repository) CreateBooking(ctx context.Context, shiftID, userID string) error {
+	id := generageID()
+	query := `INSERT INTO bookings (id,user_id,shift_id) VALUES ($1, $2, $3)`
+	_, err := r.pool.Exec(ctx, query, id, userID, shiftID)
+	if err != nil {
+		return fmt.Errorf("CreateBooking: %w", err)
+	}
+	return nil
+}

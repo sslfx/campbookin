@@ -50,7 +50,10 @@ func (gw *Gateway) JWTMiddleware(next http.Handler) http.Handler {
 	})
 }
 func (gw *Gateway) withAuthContext(req *http.Request) context.Context {
-	userID := req.Context().Value("userID").(string)
+	userID, ok := req.Context().Value("userID").(string)
+	if !ok {
+		userID = ""
+	}
 
 	md := metadata.New(map[string]string{
 		"user_id": userID,

@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Handler struct {
@@ -106,4 +107,56 @@ func (h *Handler) UpdateCamp(ctx context.Context, req *pb.UpdateCampRequest) (*p
 	}
 
 	return &pb.UpdateCampResponse{Success: true}, nil
+}
+
+func (h *Handler) CreateShift(ctx context.Context, req *pb.CreateShiftRequest) (*pb.CreateShiftResponse, error) {
+	h.logger.Info("CreateShiftHandler: GRPC CALLED")
+	shift, err := h.service.CreateShift(ctx, req.GetName(), req.GetCampId(), req.GetDescription(), req.GetCapacity(), req.GetPrice(), ShiftStatus(req.GetStatus()), req.GetStartTime().AsTime(), req.GetEndTime().AsTime())
+	if err != nil {
+		h.logger.Error("CreateShiftHandler: service error", err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.CreateShiftResponse{Id: shift.ID}, nil
+}
+func mapStatusToProto(s ShiftStatus) pb.Status {
+	switch s {
+	case ShiftStatusActive:
+		return pb.Status_SHIFT_ACTIVE
+	case ShiftStatusInactive:
+		return pb.Status_SHIFT_INACTIVE
+	default:
+		return pb.Status_SHIFT_UNKNOWN
+	}
+}
+func (h *Handler) GetShift(ctx context.Context, req *pb.GetShiftRequest) (*pb.GetShiftResponse, error) {
+	h.logger.Info("GetShiftHandler: GRPC CALLED")
+	shift, err := h.service.GetShift(ctx, req.GetId())
+	if err != nil {
+		h.logger.Error("GetShiftHandler: service error", err.Error())
+	}
+	return &pb.GetShiftResponse{
+		Shift: &pb.Shift{
+			Id:          shift.ID,
+			Name:        shift.Name,
+			CampId:      shift.CampID,
+			Description: shift.Description,
+			Status:      mapStatusToProto(shift.Status),
+			Price:       shift.Price,
+			Capacity:    shift.Capacity,
+			EndTime:     timestamppb.New(shift.EndTime),
+			StartTime:   timestamppb.New(shift.StartTime),
+		},
+	}, nil
+}
+
+func (h *Handler) BookShift(ctx context.Context, req *pb.BookShiftRequest) (*pb.BookShiftResponse, error) {
+	h.logger.Info("BookingShiftHandler: GRPC CALLED")
+	success, err := h.service.BookShift(ctx, req.GetShiftId(), req.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	if !success {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.BookShiftResponse{Success: success}, nil
 }

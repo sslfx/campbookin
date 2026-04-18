@@ -2,7 +2,13 @@ package admin
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/segmentio/kafka-go"
 )
 
 const (
@@ -24,13 +30,24 @@ type CampAdminRepository interface {
 	IsDirector(ctx context.Context, userID, campID string) (bool, error)
 	Assing(ctx context.Context, userID, campID string) error
 	GetUserRole(ctx context.Context, userID string) (string, error)
+	CreateShift(ctx context.Context, shift *Shift) error
+	GetShift(ctx context.Context, id string) (*Shift, error)
+	CreateBooking(ctx context.Context, shiftID, userID string) error
 }
 type Service struct {
-	repo CampAdminRepository
+	repo   CampAdminRepository
+	writer *kafka.Writer
 }
 
 func NewService(repo CampAdminRepository) *Service {
-	return &Service{repo: repo}
+	return &Service{
+		repo: repo,
+		writer: &kafka.Writer{
+			Addr:     kafka.TCP("kafka:9092"),
+			Topic:    "bookings.create",
+			Balancer: &kafka.LeastBytes{},
+		},
+	}
 }
 
 func (s *Service) authorize(ctx context.Context, action string, campID string) error {
@@ -81,9 +98,9 @@ func (s *Service) GetCamp(ctx context.Context, id string) (*Camp, error) {
 		return nil, fmt.Errorf("id is empty")
 	}
 
-	if err := s.authorize(ctx, ActionGetCamp, id); err != nil {
-		return nil, err
-	}
+	//if err := s.authorize(ctx, ActionGetCamp, id); err != nil {
+	//return nil, err
+	//}
 
 	return s.repo.GetCamp(ctx, id)
 }
@@ -138,4 +155,81 @@ func (s *Service) Assign(ctx context.Context, userID, campID string) error {
 		return fmt.Errorf("camp not found: %w", err)
 	}
 	return s.repo.Assing(ctx, userID, campID)
+}
+
+func (s *Service) CreateShift(ctx context.Context, name, campID, description string, capacity, price int32, status ShiftStatus, startTime, endTime time.Time) (*Shift, error) {
+	if name == "" || description == "" || campID == "" || capacity == 0 || price == 0 || startTime.IsZero() || endTime.IsZero() {
+		return nil, fmt.Errorf("invalid input")
+	}
+	shift := &Shift{
+		Name:        name,
+		Description: description,
+		Capacity:    capacity,
+		Price:       price,
+		Status:      status,
+		StartTime:   startTime,
+		EndTime:     endTime,
+		CampID:      campID,
+	}
+	if err := s.repo.CreateShift(ctx, shift); err != nil {
+		return nil, fmt.Errorf("CreateShiftServ: %w", err)
+	}
+	return shift, nil
+}
+
+func (s *Service) GetShift(ctx context.Context, id string) (*Shift, error) {
+	if id == "" {
+		return nil, fmt.Errorf("id is empty")
+	}
+	shift, err := s.repo.GetShift(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("GetShiftServ: %w", err)
+	}
+	return shift, nil
+}
+
+func (s *Service) BookShift(ctx context.Context, shiftID, userID string) (bool, error) {
+	if userID == "" || shiftID == "" {
+		return false, fmt.Errorf("invalid input")
+	}
+	shift, err := s.repo.GetShift(ctx, shiftID)
+	if err != nil {
+		return false, fmt.Errorf("GetShiftServ: %w", err)
+	}
+	//if shift.EndTime.Before(time.Now()) || shift.Status != ShiftStatusInactive {
+	//return false, fmt.Errorf("shift is already active or expired")
+	//}
+	if err := s.repo.CreateBooking(ctx, shift.ID, userID); err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" {
+				return false, fmt.Errorf("already booking")
+			}
+		}
+		return false, fmt.Errorf("CreateBookingServ: %w", err)
+	}
+
+	type BookingEvent struct {
+		UserID  string `json:"user_id"`
+		ShiftID string `json:"shift_id"`
+	}
+	event := BookingEvent{
+		UserID:  userID,
+		ShiftID: shiftID,
+	}
+	data, err := json.Marshal(event)
+	if err != nil {
+		return false, fmt.Errorf("CreateBooking: %w", err)
+	}
+	fmt.Printf("DEBUG: Sending to Kafka: %s\n", string(data)) // ЛОГ 1
+
+	if err := s.writer.WriteMessages(ctx, kafka.Message{
+		Value: data,
+	}); err != nil {
+		fmt.Printf("ERROR: Kafka write failed: %v\n", err) // ЛОГ 2
+		return false, fmt.Errorf("CreateBookingKafka: %w", err)
+	}
+
+	fmt.Println("DEBUG: Message successfully sent to Kafka!") // ЛОГ 3
+	return true, nil
 }

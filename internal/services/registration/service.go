@@ -13,7 +13,8 @@ import (
 
 type UserRepo interface {
 	CreateUser(ctx context.Context, user *User) error
-	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUser(ctx context.Context, email string) (*User, error)
+	GetUserEmail(ctx context.Context, email string) (*User, error)
 }
 type Service struct {
 	repo   UserRepo
@@ -37,8 +38,8 @@ func (s *Service) generateToken(user *User) (string, error) {
 	return tokenString, nil
 }
 
-func (s *Service) Register(ctx context.Context, email, password string) (*User, error) {
-	if email == "" || password == "" {
+func (s *Service) Register(ctx context.Context, email, password, name string) (*User, error) {
+	if email == "" || password == "" || name == "" {
 		return nil, fmt.Errorf("email or password is empty")
 	}
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -49,6 +50,7 @@ func (s *Service) Register(ctx context.Context, email, password string) (*User, 
 		Email:        email,
 		PasswordHash: string(passwordHash),
 		Role:         "USER",
+		Name:         name,
 	}
 	if err := s.repo.CreateUser(ctx, user); err != nil {
 		return nil, fmt.Errorf("Create: %w", err)
@@ -61,7 +63,7 @@ func (s *Service) Login(ctx context.Context, email, password string) (string, er
 	if email == "" || password == "" {
 		return "", fmt.Errorf("email or password is empty")
 	}
-	user, err := s.repo.GetUserByEmail(ctx, email)
+	user, err := s.repo.GetUserEmail(ctx, email)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", fmt.Errorf("invalid credentials")
 	}
@@ -76,4 +78,18 @@ func (s *Service) Login(ctx context.Context, email, password string) (string, er
 		return "", fmt.Errorf("LoginErr: %w", err)
 	}
 	return tokenString, nil
+}
+
+func (s *Service) GetUser(ctx context.Context, id string) (*User, error) {
+	if id == "" {
+		return nil, fmt.Errorf("invalid id")
+	}
+	user, err := s.repo.GetUser(ctx, id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("invalid id")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("GetUser: %w", err)
+	}
+	return user, nil
 }
