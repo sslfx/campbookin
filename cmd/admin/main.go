@@ -37,10 +37,10 @@ func main() {
 	log.Printf("Applying database migrations")
 	mig, err := pkg.EmbedMigrations(sqlDB, embedMigrations, "migrations")
 	if err != nil {
-		logger.Error("migrations error: %v", err)
+		logger.Error("migrations error", "error", err)
 	}
 	if err := mig.Up(); err != nil {
-		logger.Error("migrations up error: %v", err)
+		logger.Error("migrations error", "error", err)
 	}
 	//deps
 	repo := admin.NewRepository(pool)
