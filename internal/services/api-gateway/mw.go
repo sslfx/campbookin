@@ -5,10 +5,33 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/grpc/metadata"
 )
+
+func (gw *Gateway) RateLimiterMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, ok := r.Context().Value("userID").(string)
+		if ok == false {
+			return
+		}
+		ctx := r.Context()
+		key := fmt.Sprintf("rate:user:%s", userID)
+
+		count, err := gw.redis.Incr(ctx, key).Result()
+		if err == nil && count == 1 {
+			gw.redis.Expire(ctx, key, 1*time.Minute)
+		}
+
+		if count > 60 {
+			http.Error(w, "Слишком много запросов. Подождите минуту.", http.StatusTooManyRequests)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
 
 func (gw *Gateway) JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {

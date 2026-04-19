@@ -13,7 +13,7 @@ import (
 
 type UserRepo interface {
 	CreateUser(ctx context.Context, user *User) error
-	GetUser(ctx context.Context, email string) (*User, error)
+	GetUser(ctx context.Context, id string) (*User, error)
 	GetUserEmail(ctx context.Context, email string) (*User, error)
 }
 type Service struct {

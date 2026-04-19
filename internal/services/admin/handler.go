@@ -29,7 +29,7 @@ func (h *Handler) Assign(ctx context.Context, req *pb.AssignRequest) (*pb.Assign
 
 	err := h.service.Assign(ctx, req.GetUserId(), req.GetCampId())
 	if err != nil {
-		h.logger.Error("AssignDirector error", err.Error())
+		h.logger.Error("AssignDirector error", "error", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -42,7 +42,7 @@ func (h *Handler) CreateCamp(ctx context.Context, req *pb.CreateCampRequest) (*p
 	h.logger.Info("CreateCampHandler: GRPC CALLED")
 	camp, err := h.service.CreateCamp(ctx, req.GetName(), req.GetDescription(), req.GetAddress())
 	if err != nil {
-		h.logger.Error("CreateCampHandler: service error", err.Error())
+		h.logger.Error("CreateCampHandler: service error", "error", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.CreateCampResponse{Id: camp.ID}, nil
@@ -52,7 +52,7 @@ func (h *Handler) GetCamp(ctx context.Context, req *pb.GetCampRequest) (*pb.GetC
 	h.logger.Info("GetCampHandler: GRPC CALLED")
 	camp, err := h.service.GetCamp(ctx, req.GetId())
 	if err != nil {
-		h.logger.Error("GetCampHandler: service error", err.Error())
+		h.logger.Error("GetCampHandler: service error", "error", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.GetCampResponse{
@@ -69,7 +69,7 @@ func (h *Handler) DeleteCamp(ctx context.Context, req *pb.DeleteCampRequest) (*p
 	h.logger.Info("DeleteCampHandler: GRPC CALLED")
 	err := h.service.DeleteCamp(ctx, req.GetId())
 	if err != nil {
-		h.logger.Error("DeleteCampHandler: service error", err.Error())
+		h.logger.Error("DeleteCampHandler: service error", "error", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.DeleteCampResponse{
@@ -81,7 +81,7 @@ func (h *Handler) ListCamps(ctx context.Context, request *pb.ListCampsRequest) (
 	h.logger.Info("ListCampsHandler: GRPC CALLED")
 	camps, err := h.service.ListCamps(ctx)
 	if err != nil {
-		h.logger.Error("ListCampsHandler: service error", err.Error())
+		h.logger.Error("ListCampsHandler: service error", "error", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	campss := make([]*pb.Camp, len(camps))
@@ -102,7 +102,7 @@ func (h *Handler) UpdateCamp(ctx context.Context, req *pb.UpdateCampRequest) (*p
 	h.logger.Info("UpdateCampHandler: GRPC CALLED")
 	err := h.service.UpdateCamp(ctx, req.GetId(), req.GetName(), req.GetDescription(), req.GetAddress())
 	if err != nil {
-		h.logger.Error("UpdateCampHandler: service error", err.Error())
+		h.logger.Error("UpdateCampHandler: service error", "error", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -113,7 +113,7 @@ func (h *Handler) CreateShift(ctx context.Context, req *pb.CreateShiftRequest) (
 	h.logger.Info("CreateShiftHandler: GRPC CALLED")
 	shift, err := h.service.CreateShift(ctx, req.GetName(), req.GetCampId(), req.GetDescription(), req.GetCapacity(), req.GetPrice(), ShiftStatus(req.GetStatus()), req.GetStartTime().AsTime(), req.GetEndTime().AsTime())
 	if err != nil {
-		h.logger.Error("CreateShiftHandler: service error", err.Error())
+		h.logger.Error("CreateShiftHandler: service error", "error", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.CreateShiftResponse{Id: shift.ID}, nil
@@ -132,7 +132,8 @@ func (h *Handler) GetShift(ctx context.Context, req *pb.GetShiftRequest) (*pb.Ge
 	h.logger.Info("GetShiftHandler: GRPC CALLED")
 	shift, err := h.service.GetShift(ctx, req.GetId())
 	if err != nil {
-		h.logger.Error("GetShiftHandler: service error", err.Error())
+		h.logger.Error("GetShiftHandler: service error", "error", err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.GetShiftResponse{
 		Shift: &pb.Shift{
@@ -146,6 +147,78 @@ func (h *Handler) GetShift(ctx context.Context, req *pb.GetShiftRequest) (*pb.Ge
 			EndTime:     timestamppb.New(shift.EndTime),
 			StartTime:   timestamppb.New(shift.StartTime),
 		},
+	}, nil
+}
+
+func (h *Handler) UpdateShift(ctx context.Context, req *pb.UpdateShiftRequest) (*pb.UpdateShiftResponse, error) {
+	h.logger.Info("UpdateShiftHandler: GRPC CALLED")
+	err := h.service.UpdateShift(ctx, req.GetId(), req.GetName(), req.GetDescription(), req.GetStartTime().AsTime(), req.GetEndTime().AsTime(), req.GetCapacity(), req.GetPrice(), ShiftStatus(req.GetStatus()))
+	if err != nil {
+		h.logger.Error("UpdateShiftHandler: service error", "error", err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.UpdateShiftResponse{Success: true}, nil
+}
+
+func (h *Handler) DeleteShift(ctx context.Context, req *pb.DeleteShiftRequest) (*pb.DeleteShiftResponse, error) {
+	h.logger.Info("DeleteShiftHandler: GRPC CALLED")
+	err := h.service.DeleteShift(ctx, req.GetId())
+	if err != nil {
+		h.logger.Error("DeleteShiftHandler: service error", "error", err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.DeleteShiftResponse{Success: true}, nil
+}
+
+func (h *Handler) ListShifts(ctx context.Context, req *pb.ListShiftsRequest) (*pb.ListShiftsResponse, error) {
+	h.logger.Info("ListShiftsHandler: GRPC CALLED")
+	shifts, err := h.service.ListShifts(ctx)
+	if err != nil {
+		h.logger.Error("ListShiftsHandler: service error", "error", err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	shiftsResp := make([]*pb.Shift, len(shifts))
+	for i, s := range shifts {
+		shiftsResp[i] = &pb.Shift{
+			Id:          s.ID,
+			Name:        s.Name,
+			CampId:      s.CampID,
+			Description: s.Description,
+			Status:      mapStatusToProto(s.Status),
+			Price:       s.Price,
+			Capacity:    s.Capacity,
+			EndTime:     timestamppb.New(s.EndTime),
+			StartTime:   timestamppb.New(s.StartTime),
+		}
+	}
+	return &pb.ListShiftsResponse{
+		Shifts: shiftsResp,
+	}, nil
+}
+
+func (h *Handler) ListShiftsForCamp(ctx context.Context, req *pb.ListShiftsForCampRequest) (*pb.ListShiftsForCampResponse, error) {
+	h.logger.Info("ListShiftsForCampHandler: GRPC CALLED")
+	shifts, err := h.service.ListShiftsForCamp(ctx, req.GetCampId())
+	if err != nil {
+		h.logger.Error("ListShiftsForCampHandler: service error", "error", err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	shiftsResp := make([]*pb.Shift, len(shifts))
+	for i, s := range shifts {
+		shiftsResp[i] = &pb.Shift{
+			Id:          s.ID,
+			Name:        s.Name,
+			CampId:      s.CampID,
+			Description: s.Description,
+			Status:      mapStatusToProto(s.Status),
+			Price:       s.Price,
+			Capacity:    s.Capacity,
+			EndTime:     timestamppb.New(s.EndTime),
+			StartTime:   timestamppb.New(s.StartTime),
+		}
+	}
+	return &pb.ListShiftsForCampResponse{
+		Shifts: shiftsResp,
 	}, nil
 }
 

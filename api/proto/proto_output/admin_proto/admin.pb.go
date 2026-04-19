@@ -959,16 +959,431 @@ func (x *CreateShiftResponse) GetId() string {
 	return ""
 }
 
-type ListShiftsRequest struct {
+type GetShiftRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetShiftRequest) Reset() {
+	*x = GetShiftRequest{}
+	mi := &file_admin_proto_admin_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetShiftRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetShiftRequest) ProtoMessage() {}
+
+func (x *GetShiftRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_admin_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetShiftRequest.ProtoReflect.Descriptor instead.
+func (*GetShiftRequest) Descriptor() ([]byte, []int) {
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetShiftRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetShiftResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Shift         *Shift                 `protobuf:"bytes,1,opt,name=shift,proto3" json:"shift,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetShiftResponse) Reset() {
+	*x = GetShiftResponse{}
+	mi := &file_admin_proto_admin_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetShiftResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetShiftResponse) ProtoMessage() {}
+
+func (x *GetShiftResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_admin_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetShiftResponse.ProtoReflect.Descriptor instead.
+func (*GetShiftResponse) Descriptor() ([]byte, []int) {
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetShiftResponse) GetShift() *Shift {
+	if x != nil {
+		return x.Shift
+	}
+	return nil
+}
+
+type UpdateShiftRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	StartTime     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	Capacity      int32                  `protobuf:"varint,5,opt,name=capacity,proto3" json:"capacity,omitempty"`
+	Price         int32                  `protobuf:"varint,6,opt,name=price,proto3" json:"price,omitempty"`
+	CampId        string                 `protobuf:"bytes,7,opt,name=camp_id,json=campId,proto3" json:"camp_id,omitempty"`
+	Status        Status                 `protobuf:"varint,8,opt,name=status,proto3,enum=Status" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateShiftRequest) Reset() {
+	*x = UpdateShiftRequest{}
+	mi := &file_admin_proto_admin_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateShiftRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateShiftRequest) ProtoMessage() {}
+
+func (x *UpdateShiftRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_admin_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateShiftRequest.ProtoReflect.Descriptor instead.
+func (*UpdateShiftRequest) Descriptor() ([]byte, []int) {
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UpdateShiftRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateShiftRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateShiftRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UpdateShiftRequest) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *UpdateShiftRequest) GetEndTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTime
+	}
+	return nil
+}
+
+func (x *UpdateShiftRequest) GetCapacity() int32 {
+	if x != nil {
+		return x.Capacity
+	}
+	return 0
+}
+
+func (x *UpdateShiftRequest) GetPrice() int32 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
+func (x *UpdateShiftRequest) GetCampId() string {
+	if x != nil {
+		return x.CampId
+	}
+	return ""
+}
+
+func (x *UpdateShiftRequest) GetStatus() Status {
+	if x != nil {
+		return x.Status
+	}
+	return Status_SHIFT_UNKNOWN
+}
+
+type UpdateShiftResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateShiftResponse) Reset() {
+	*x = UpdateShiftResponse{}
+	mi := &file_admin_proto_admin_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateShiftResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateShiftResponse) ProtoMessage() {}
+
+func (x *UpdateShiftResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_admin_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateShiftResponse.ProtoReflect.Descriptor instead.
+func (*UpdateShiftResponse) Descriptor() ([]byte, []int) {
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *UpdateShiftResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type DeleteShiftRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteShiftRequest) Reset() {
+	*x = DeleteShiftRequest{}
+	mi := &file_admin_proto_admin_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteShiftRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteShiftRequest) ProtoMessage() {}
+
+func (x *DeleteShiftRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_admin_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteShiftRequest.ProtoReflect.Descriptor instead.
+func (*DeleteShiftRequest) Descriptor() ([]byte, []int) {
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *DeleteShiftRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeleteShiftResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteShiftResponse) Reset() {
+	*x = DeleteShiftResponse{}
+	mi := &file_admin_proto_admin_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteShiftResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteShiftResponse) ProtoMessage() {}
+
+func (x *DeleteShiftResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_admin_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteShiftResponse.ProtoReflect.Descriptor instead.
+func (*DeleteShiftResponse) Descriptor() ([]byte, []int) {
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *DeleteShiftResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type ListShiftsForCampRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CampId        string                 `protobuf:"bytes,1,opt,name=camp_id,json=campId,proto3" json:"camp_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *ListShiftsForCampRequest) Reset() {
+	*x = ListShiftsForCampRequest{}
+	mi := &file_admin_proto_admin_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListShiftsForCampRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListShiftsForCampRequest) ProtoMessage() {}
+
+func (x *ListShiftsForCampRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_admin_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListShiftsForCampRequest.ProtoReflect.Descriptor instead.
+func (*ListShiftsForCampRequest) Descriptor() ([]byte, []int) {
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ListShiftsForCampRequest) GetCampId() string {
+	if x != nil {
+		return x.CampId
+	}
+	return ""
+}
+
+type ListShiftsForCampResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Shifts        []*Shift               `protobuf:"bytes,1,rep,name=shifts,proto3" json:"shifts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListShiftsForCampResponse) Reset() {
+	*x = ListShiftsForCampResponse{}
+	mi := &file_admin_proto_admin_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListShiftsForCampResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListShiftsForCampResponse) ProtoMessage() {}
+
+func (x *ListShiftsForCampResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_admin_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListShiftsForCampResponse.ProtoReflect.Descriptor instead.
+func (*ListShiftsForCampResponse) Descriptor() ([]byte, []int) {
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *ListShiftsForCampResponse) GetShifts() []*Shift {
+	if x != nil {
+		return x.Shifts
+	}
+	return nil
+}
+
+type ListShiftsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
 func (x *ListShiftsRequest) Reset() {
 	*x = ListShiftsRequest{}
-	mi := &file_admin_proto_admin_proto_msgTypes[16]
+	mi := &file_admin_proto_admin_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -980,7 +1395,7 @@ func (x *ListShiftsRequest) String() string {
 func (*ListShiftsRequest) ProtoMessage() {}
 
 func (x *ListShiftsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_admin_proto_msgTypes[16]
+	mi := &file_admin_proto_admin_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -993,14 +1408,7 @@ func (x *ListShiftsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListShiftsRequest.ProtoReflect.Descriptor instead.
 func (*ListShiftsRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_admin_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *ListShiftsRequest) GetCampId() string {
-	if x != nil {
-		return x.CampId
-	}
-	return ""
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{24}
 }
 
 type ListShiftsResponse struct {
@@ -1012,7 +1420,7 @@ type ListShiftsResponse struct {
 
 func (x *ListShiftsResponse) Reset() {
 	*x = ListShiftsResponse{}
-	mi := &file_admin_proto_admin_proto_msgTypes[17]
+	mi := &file_admin_proto_admin_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1024,7 +1432,7 @@ func (x *ListShiftsResponse) String() string {
 func (*ListShiftsResponse) ProtoMessage() {}
 
 func (x *ListShiftsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_admin_proto_msgTypes[17]
+	mi := &file_admin_proto_admin_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1037,7 +1445,7 @@ func (x *ListShiftsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListShiftsResponse.ProtoReflect.Descriptor instead.
 func (*ListShiftsResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_admin_proto_rawDescGZIP(), []int{17}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListShiftsResponse) GetShifts() []*Shift {
@@ -1057,7 +1465,7 @@ type BookShiftRequest struct {
 
 func (x *BookShiftRequest) Reset() {
 	*x = BookShiftRequest{}
-	mi := &file_admin_proto_admin_proto_msgTypes[18]
+	mi := &file_admin_proto_admin_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1069,7 +1477,7 @@ func (x *BookShiftRequest) String() string {
 func (*BookShiftRequest) ProtoMessage() {}
 
 func (x *BookShiftRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_admin_proto_msgTypes[18]
+	mi := &file_admin_proto_admin_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1082,7 +1490,7 @@ func (x *BookShiftRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BookShiftRequest.ProtoReflect.Descriptor instead.
 func (*BookShiftRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_admin_proto_rawDescGZIP(), []int{18}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *BookShiftRequest) GetShiftId() string {
@@ -1108,7 +1516,7 @@ type BookShiftResponse struct {
 
 func (x *BookShiftResponse) Reset() {
 	*x = BookShiftResponse{}
-	mi := &file_admin_proto_admin_proto_msgTypes[19]
+	mi := &file_admin_proto_admin_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1120,7 +1528,7 @@ func (x *BookShiftResponse) String() string {
 func (*BookShiftResponse) ProtoMessage() {}
 
 func (x *BookShiftResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_admin_proto_msgTypes[19]
+	mi := &file_admin_proto_admin_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1133,7 +1541,7 @@ func (x *BookShiftResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BookShiftResponse.ProtoReflect.Descriptor instead.
 func (*BookShiftResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_admin_proto_rawDescGZIP(), []int{19}
+	return file_admin_proto_admin_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *BookShiftResponse) GetSuccess() bool {
@@ -1141,94 +1549,6 @@ func (x *BookShiftResponse) GetSuccess() bool {
 		return x.Success
 	}
 	return false
-}
-
-type GetShiftRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetShiftRequest) Reset() {
-	*x = GetShiftRequest{}
-	mi := &file_admin_proto_admin_proto_msgTypes[20]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetShiftRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetShiftRequest) ProtoMessage() {}
-
-func (x *GetShiftRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_admin_proto_msgTypes[20]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetShiftRequest.ProtoReflect.Descriptor instead.
-func (*GetShiftRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_admin_proto_rawDescGZIP(), []int{20}
-}
-
-func (x *GetShiftRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type GetShiftResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Shift         *Shift                 `protobuf:"bytes,1,opt,name=shift,proto3" json:"shift,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetShiftResponse) Reset() {
-	*x = GetShiftResponse{}
-	mi := &file_admin_proto_admin_proto_msgTypes[21]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetShiftResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetShiftResponse) ProtoMessage() {}
-
-func (x *GetShiftResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_admin_proto_msgTypes[21]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetShiftResponse.ProtoReflect.Descriptor instead.
-func (*GetShiftResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_admin_proto_rawDescGZIP(), []int{21}
-}
-
-func (x *GetShiftResponse) GetShift() *Shift {
-	if x != nil {
-		return x.Shift
-	}
-	return nil
 }
 
 var File_admin_proto_admin_proto protoreflect.FileDescriptor
@@ -1292,24 +1612,44 @@ const file_admin_proto_admin_proto_rawDesc = "" +
 	"\x06status\x18\a \x01(\x0e2\a.StatusR\x06status\x12 \n" +
 	"\vdescription\x18\b \x01(\tR\vdescription\"%\n" +
 	"\x13CreateShiftResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\",\n" +
-	"\x11ListShiftsRequest\x12\x17\n" +
-	"\acamp_id\x18\x01 \x01(\tR\x06campId\"4\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"!\n" +
+	"\x0fGetShiftRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"0\n" +
+	"\x10GetShiftResponse\x12\x1c\n" +
+	"\x05shift\x18\x01 \x01(\v2\x06.ShiftR\x05shift\"\xb8\x02\n" +
+	"\x12UpdateShiftRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x129\n" +
+	"\n" +
+	"start_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\x1a\n" +
+	"\bcapacity\x18\x05 \x01(\x05R\bcapacity\x12\x14\n" +
+	"\x05price\x18\x06 \x01(\x05R\x05price\x12\x17\n" +
+	"\acamp_id\x18\a \x01(\tR\x06campId\x12\x1f\n" +
+	"\x06status\x18\b \x01(\x0e2\a.StatusR\x06status\"/\n" +
+	"\x13UpdateShiftResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"$\n" +
+	"\x12DeleteShiftRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"/\n" +
+	"\x13DeleteShiftResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"3\n" +
+	"\x18ListShiftsForCampRequest\x12\x17\n" +
+	"\acamp_id\x18\x01 \x01(\tR\x06campId\";\n" +
+	"\x19ListShiftsForCampResponse\x12\x1e\n" +
+	"\x06shifts\x18\x01 \x03(\v2\x06.ShiftR\x06shifts\"\x13\n" +
+	"\x11ListShiftsRequest\"4\n" +
 	"\x12ListShiftsResponse\x12\x1e\n" +
 	"\x06shifts\x18\x01 \x03(\v2\x06.ShiftR\x06shifts\"F\n" +
 	"\x10BookShiftRequest\x12\x19\n" +
 	"\bshift_id\x18\x01 \x01(\tR\ashiftId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"-\n" +
 	"\x11BookShiftResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"!\n" +
-	"\x0fGetShiftRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"0\n" +
-	"\x10GetShiftResponse\x12\x1c\n" +
-	"\x05shift\x18\x01 \x01(\v2\x06.ShiftR\x05shift*A\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess*A\n" +
 	"\x06Status\x12\x11\n" +
 	"\rSHIFT_UNKNOWN\x10\x00\x12\x10\n" +
 	"\fSHIFT_ACTIVE\x10\x01\x12\x12\n" +
-	"\x0eSHIFT_INACTIVE\x10\x022\x93\x04\n" +
+	"\x0eSHIFT_INACTIVE\x10\x022\xd3\x05\n" +
 	"\tCampAdmin\x12)\n" +
 	"\x06Assign\x12\x0e.AssignRequest\x1a\x0f.AssignResponse\x125\n" +
 	"\n" +
@@ -1321,7 +1661,10 @@ const file_admin_proto_admin_proto_rawDesc = "" +
 	"UpdateCamp\x12\x12.UpdateCampRequest\x1a\x13.UpdateCampResponse\x122\n" +
 	"\tListCamps\x12\x11.ListCampsRequest\x1a\x12.ListCampsResponse\x128\n" +
 	"\vCreateShift\x12\x13.CreateShiftRequest\x1a\x14.CreateShiftResponse\x12/\n" +
-	"\bGetShift\x12\x10.GetShiftRequest\x1a\x11.GetShiftResponse\x125\n" +
+	"\bGetShift\x12\x10.GetShiftRequest\x1a\x11.GetShiftResponse\x128\n" +
+	"\vUpdateShift\x12\x13.UpdateShiftRequest\x1a\x14.UpdateShiftResponse\x128\n" +
+	"\vDeleteShift\x12\x13.DeleteShiftRequest\x1a\x14.DeleteShiftResponse\x12J\n" +
+	"\x11ListShiftsForCamp\x12\x19.ListShiftsForCampRequest\x1a\x1a.ListShiftsForCampResponse\x125\n" +
 	"\n" +
 	"ListShifts\x12\x12.ListShiftsRequest\x1a\x13.ListShiftsResponse\x122\n" +
 	"\tBookShift\x12\x11.BookShiftRequest\x1a\x12.BookShiftResponseB\x1dZ\x1bcampbookin/api/proto_outputb\x06proto3"
@@ -1339,69 +1682,85 @@ func file_admin_proto_admin_proto_rawDescGZIP() []byte {
 }
 
 var file_admin_proto_admin_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_admin_proto_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_admin_proto_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_admin_proto_admin_proto_goTypes = []any{
-	(Status)(0),                   // 0: Status
-	(*Camp)(nil),                  // 1: Camp
-	(*Shift)(nil),                 // 2: Shift
-	(*UpdateCampRequest)(nil),     // 3: UpdateCampRequest
-	(*UpdateCampResponse)(nil),    // 4: UpdateCampResponse
-	(*GetCampRequest)(nil),        // 5: GetCampRequest
-	(*GetCampResponse)(nil),       // 6: GetCampResponse
-	(*CreateCampRequest)(nil),     // 7: CreateCampRequest
-	(*CreateCampResponse)(nil),    // 8: CreateCampResponse
-	(*DeleteCampRequest)(nil),     // 9: DeleteCampRequest
-	(*DeleteCampResponse)(nil),    // 10: DeleteCampResponse
-	(*ListCampsRequest)(nil),      // 11: ListCampsRequest
-	(*ListCampsResponse)(nil),     // 12: ListCampsResponse
-	(*AssignRequest)(nil),         // 13: AssignRequest
-	(*AssignResponse)(nil),        // 14: AssignResponse
-	(*CreateShiftRequest)(nil),    // 15: CreateShiftRequest
-	(*CreateShiftResponse)(nil),   // 16: CreateShiftResponse
-	(*ListShiftsRequest)(nil),     // 17: ListShiftsRequest
-	(*ListShiftsResponse)(nil),    // 18: ListShiftsResponse
-	(*BookShiftRequest)(nil),      // 19: BookShiftRequest
-	(*BookShiftResponse)(nil),     // 20: BookShiftResponse
-	(*GetShiftRequest)(nil),       // 21: GetShiftRequest
-	(*GetShiftResponse)(nil),      // 22: GetShiftResponse
-	(*timestamppb.Timestamp)(nil), // 23: google.protobuf.Timestamp
+	(Status)(0),                       // 0: Status
+	(*Camp)(nil),                      // 1: Camp
+	(*Shift)(nil),                     // 2: Shift
+	(*UpdateCampRequest)(nil),         // 3: UpdateCampRequest
+	(*UpdateCampResponse)(nil),        // 4: UpdateCampResponse
+	(*GetCampRequest)(nil),            // 5: GetCampRequest
+	(*GetCampResponse)(nil),           // 6: GetCampResponse
+	(*CreateCampRequest)(nil),         // 7: CreateCampRequest
+	(*CreateCampResponse)(nil),        // 8: CreateCampResponse
+	(*DeleteCampRequest)(nil),         // 9: DeleteCampRequest
+	(*DeleteCampResponse)(nil),        // 10: DeleteCampResponse
+	(*ListCampsRequest)(nil),          // 11: ListCampsRequest
+	(*ListCampsResponse)(nil),         // 12: ListCampsResponse
+	(*AssignRequest)(nil),             // 13: AssignRequest
+	(*AssignResponse)(nil),            // 14: AssignResponse
+	(*CreateShiftRequest)(nil),        // 15: CreateShiftRequest
+	(*CreateShiftResponse)(nil),       // 16: CreateShiftResponse
+	(*GetShiftRequest)(nil),           // 17: GetShiftRequest
+	(*GetShiftResponse)(nil),          // 18: GetShiftResponse
+	(*UpdateShiftRequest)(nil),        // 19: UpdateShiftRequest
+	(*UpdateShiftResponse)(nil),       // 20: UpdateShiftResponse
+	(*DeleteShiftRequest)(nil),        // 21: DeleteShiftRequest
+	(*DeleteShiftResponse)(nil),       // 22: DeleteShiftResponse
+	(*ListShiftsForCampRequest)(nil),  // 23: ListShiftsForCampRequest
+	(*ListShiftsForCampResponse)(nil), // 24: ListShiftsForCampResponse
+	(*ListShiftsRequest)(nil),         // 25: ListShiftsRequest
+	(*ListShiftsResponse)(nil),        // 26: ListShiftsResponse
+	(*BookShiftRequest)(nil),          // 27: BookShiftRequest
+	(*BookShiftResponse)(nil),         // 28: BookShiftResponse
+	(*timestamppb.Timestamp)(nil),     // 29: google.protobuf.Timestamp
 }
 var file_admin_proto_admin_proto_depIdxs = []int32{
-	23, // 0: Shift.start_time:type_name -> google.protobuf.Timestamp
-	23, // 1: Shift.end_time:type_name -> google.protobuf.Timestamp
+	29, // 0: Shift.start_time:type_name -> google.protobuf.Timestamp
+	29, // 1: Shift.end_time:type_name -> google.protobuf.Timestamp
 	0,  // 2: Shift.status:type_name -> Status
 	1,  // 3: GetCampResponse.camp:type_name -> Camp
 	1,  // 4: ListCampsResponse.camps:type_name -> Camp
-	23, // 5: CreateShiftRequest.start_time:type_name -> google.protobuf.Timestamp
-	23, // 6: CreateShiftRequest.end_time:type_name -> google.protobuf.Timestamp
+	29, // 5: CreateShiftRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 6: CreateShiftRequest.end_time:type_name -> google.protobuf.Timestamp
 	0,  // 7: CreateShiftRequest.status:type_name -> Status
-	2,  // 8: ListShiftsResponse.shifts:type_name -> Shift
-	2,  // 9: GetShiftResponse.shift:type_name -> Shift
-	13, // 10: CampAdmin.Assign:input_type -> AssignRequest
-	7,  // 11: CampAdmin.CreateCamp:input_type -> CreateCampRequest
-	9,  // 12: CampAdmin.DeleteCamp:input_type -> DeleteCampRequest
-	5,  // 13: CampAdmin.GetCamp:input_type -> GetCampRequest
-	3,  // 14: CampAdmin.UpdateCamp:input_type -> UpdateCampRequest
-	11, // 15: CampAdmin.ListCamps:input_type -> ListCampsRequest
-	15, // 16: CampAdmin.CreateShift:input_type -> CreateShiftRequest
-	21, // 17: CampAdmin.GetShift:input_type -> GetShiftRequest
-	17, // 18: CampAdmin.ListShifts:input_type -> ListShiftsRequest
-	19, // 19: CampAdmin.BookShift:input_type -> BookShiftRequest
-	14, // 20: CampAdmin.Assign:output_type -> AssignResponse
-	8,  // 21: CampAdmin.CreateCamp:output_type -> CreateCampResponse
-	10, // 22: CampAdmin.DeleteCamp:output_type -> DeleteCampResponse
-	6,  // 23: CampAdmin.GetCamp:output_type -> GetCampResponse
-	4,  // 24: CampAdmin.UpdateCamp:output_type -> UpdateCampResponse
-	12, // 25: CampAdmin.ListCamps:output_type -> ListCampsResponse
-	16, // 26: CampAdmin.CreateShift:output_type -> CreateShiftResponse
-	22, // 27: CampAdmin.GetShift:output_type -> GetShiftResponse
-	18, // 28: CampAdmin.ListShifts:output_type -> ListShiftsResponse
-	20, // 29: CampAdmin.BookShift:output_type -> BookShiftResponse
-	20, // [20:30] is the sub-list for method output_type
-	10, // [10:20] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	2,  // 8: GetShiftResponse.shift:type_name -> Shift
+	29, // 9: UpdateShiftRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 10: UpdateShiftRequest.end_time:type_name -> google.protobuf.Timestamp
+	0,  // 11: UpdateShiftRequest.status:type_name -> Status
+	2,  // 12: ListShiftsForCampResponse.shifts:type_name -> Shift
+	2,  // 13: ListShiftsResponse.shifts:type_name -> Shift
+	13, // 14: CampAdmin.Assign:input_type -> AssignRequest
+	7,  // 15: CampAdmin.CreateCamp:input_type -> CreateCampRequest
+	9,  // 16: CampAdmin.DeleteCamp:input_type -> DeleteCampRequest
+	5,  // 17: CampAdmin.GetCamp:input_type -> GetCampRequest
+	3,  // 18: CampAdmin.UpdateCamp:input_type -> UpdateCampRequest
+	11, // 19: CampAdmin.ListCamps:input_type -> ListCampsRequest
+	15, // 20: CampAdmin.CreateShift:input_type -> CreateShiftRequest
+	17, // 21: CampAdmin.GetShift:input_type -> GetShiftRequest
+	19, // 22: CampAdmin.UpdateShift:input_type -> UpdateShiftRequest
+	21, // 23: CampAdmin.DeleteShift:input_type -> DeleteShiftRequest
+	23, // 24: CampAdmin.ListShiftsForCamp:input_type -> ListShiftsForCampRequest
+	25, // 25: CampAdmin.ListShifts:input_type -> ListShiftsRequest
+	27, // 26: CampAdmin.BookShift:input_type -> BookShiftRequest
+	14, // 27: CampAdmin.Assign:output_type -> AssignResponse
+	8,  // 28: CampAdmin.CreateCamp:output_type -> CreateCampResponse
+	10, // 29: CampAdmin.DeleteCamp:output_type -> DeleteCampResponse
+	6,  // 30: CampAdmin.GetCamp:output_type -> GetCampResponse
+	4,  // 31: CampAdmin.UpdateCamp:output_type -> UpdateCampResponse
+	12, // 32: CampAdmin.ListCamps:output_type -> ListCampsResponse
+	16, // 33: CampAdmin.CreateShift:output_type -> CreateShiftResponse
+	18, // 34: CampAdmin.GetShift:output_type -> GetShiftResponse
+	20, // 35: CampAdmin.UpdateShift:output_type -> UpdateShiftResponse
+	22, // 36: CampAdmin.DeleteShift:output_type -> DeleteShiftResponse
+	24, // 37: CampAdmin.ListShiftsForCamp:output_type -> ListShiftsForCampResponse
+	26, // 38: CampAdmin.ListShifts:output_type -> ListShiftsResponse
+	28, // 39: CampAdmin.BookShift:output_type -> BookShiftResponse
+	27, // [27:40] is the sub-list for method output_type
+	14, // [14:27] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_admin_proto_admin_proto_init() }
@@ -1415,7 +1774,7 @@ func file_admin_proto_admin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_proto_admin_proto_rawDesc), len(file_admin_proto_admin_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   22,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

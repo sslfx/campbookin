@@ -12,13 +12,49 @@ import (
 )
 
 const (
-	ActionCreateCamp     = "camp.create"
-	ActionUpdateCamp     = "camp.update"
-	ActionDeleteCamp     = "camp.delete"
-	ActionGetCamp        = "camp.get"
-	ActionListCamps      = "camp.list"
-	ActionAssignDirector = "camp.assign_director"
+	//camps
+	ActionCreateCamp     = "camp.create"          //admin
+	ActionDeleteCamp     = "camp.delete"          //admin
+	ActionUpdateCamp     = "camp.update"          //dir
+	ActionGetCamp        = "camp.get"             //all
+	ActionListCamps      = "camp.list"            //all
+	ActionAssignDirector = "camp.assign_director" //admin
+	//shifts
+	ActionCreateShift    = "shift.create"    //dir
+	ActionUpdateShift    = "shift.update"    //dir
+	ActionDeleteShift    = "shift.delete"    //dir
+	ActionGetShift       = "shift.get"       //all
+	ActionListShifts     = "shift.list"      //admin
+	ActionListCampShifts = "shift.list_camp" //all
+	//booking
+	ActionBookShift = "shift.book" //all
 )
+
+func (s *Service) authorize(ctx context.Context, action string, campID string) error {
+	userID := GetUserIDFromContext(ctx)
+	globalRole, err := s.repo.GetUserRole(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if globalRole == "SUPER_ADMIN" {
+		return nil
+	}
+
+	isDirector, _ := s.repo.IsDirector(ctx, userID, campID)
+	if isDirector {
+		if action == ActionUpdateCamp || action == ActionGetCamp || action == ActionListCamps || action == ActionCreateShift || action == ActionUpdateShift || action == ActionDeleteShift || action == ActionGetShift || action == ActionListCampShifts || action == ActionBookShift {
+			return nil
+		}
+		return fmt.Errorf("authorize: forbidden for director")
+	}
+	if !isDirector {
+		if action == ActionGetCamp || action == ActionListCamps || action == ActionGetShift || action == ActionListCampShifts || action == ActionBookShift {
+			return nil
+		}
+		return fmt.Errorf("authorize: forbidden for user")
+	}
+	return fmt.Errorf("forbidden")
+}
 
 type CampAdminRepository interface {
 	CreateCamp(ctx context.Context, camp *Camp) error
@@ -33,6 +69,10 @@ type CampAdminRepository interface {
 	CreateShift(ctx context.Context, shift *Shift) error
 	GetShift(ctx context.Context, id string) (*Shift, error)
 	CreateBooking(ctx context.Context, shiftID, userID string) error
+	DeleteShift(ctx context.Context, id string) error
+	UpdateShift(ctx context.Context, shift *Shift) error
+	ListShifts(ctx context.Context) ([]*Shift, error)
+	ListShiftsForCamp(ctx context.Context, campID string) ([]*Shift, error)
 }
 type Service struct {
 	repo   CampAdminRepository
@@ -48,27 +88,6 @@ func NewService(repo CampAdminRepository) *Service {
 			Balancer: &kafka.LeastBytes{},
 		},
 	}
-}
-
-func (s *Service) authorize(ctx context.Context, action string, campID string) error {
-	userID := GetUserIDFromContext(ctx)
-	globalRole, err := s.repo.GetUserRole(ctx, userID)
-	if err != nil {
-		return err
-	}
-	if globalRole == "SUPER_ADMIN" {
-		return nil
-	}
-	isDirector, _ := s.repo.IsDirector(ctx, userID, campID)
-	if isDirector {
-		if action == ActionGetCamp || action == ActionUpdateCamp || action == ActionDeleteCamp {
-			return nil
-		}
-		if action == ActionCreateCamp || action == ActionListCamps {
-			return fmt.Errorf("authorize: forbidden for director")
-		}
-	}
-	return fmt.Errorf("forbidden")
 }
 
 func (s *Service) CreateCamp(ctx context.Context, name, description, address string) (*Camp, error) {
@@ -97,11 +116,6 @@ func (s *Service) GetCamp(ctx context.Context, id string) (*Camp, error) {
 	if id == "" {
 		return nil, fmt.Errorf("id is empty")
 	}
-
-	//if err := s.authorize(ctx, ActionGetCamp, id); err != nil {
-	//return nil, err
-	//}
-
 	return s.repo.GetCamp(ctx, id)
 }
 
@@ -137,10 +151,6 @@ func (s *Service) UpdateCamp(ctx context.Context, id, name, description, address
 }
 
 func (s *Service) ListCamps(ctx context.Context) ([]*Camp, error) {
-	err := s.authorize(ctx, ActionListCamps, "")
-	if err != nil {
-		return nil, fmt.Errorf("authorize:get role: %w", err)
-	}
 	return s.repo.ListCamps(ctx)
 }
 
@@ -158,6 +168,9 @@ func (s *Service) Assign(ctx context.Context, userID, campID string) error {
 }
 
 func (s *Service) CreateShift(ctx context.Context, name, campID, description string, capacity, price int32, status ShiftStatus, startTime, endTime time.Time) (*Shift, error) {
+	if err := s.authorize(ctx, ActionCreateShift, campID); err != nil {
+		return nil, err
+	}
 	if name == "" || description == "" || campID == "" || capacity == 0 || price == 0 || startTime.IsZero() || endTime.IsZero() {
 		return nil, fmt.Errorf("invalid input")
 	}
@@ -187,6 +200,70 @@ func (s *Service) GetShift(ctx context.Context, id string) (*Shift, error) {
 	}
 	return shift, nil
 }
+func (s *Service) UpdateShift(ctx context.Context, id, name, description string, startTime, endTime time.Time, capacity, price int32, status ShiftStatus) error {
+	if id == "" || name == "" || description == "" || capacity == 0 || price == 0 || startTime.IsZero() || endTime.IsZero() {
+		return fmt.Errorf("invalid input")
+	}
+	shift, err := s.repo.GetShift(ctx, id)
+	if err != nil {
+		return err
+	}
+	if err = s.authorize(ctx, ActionUpdateShift, shift.CampID); err != nil {
+		return err
+	}
+	if err := s.repo.UpdateShift(ctx, &Shift{
+		ID:          id,
+		Name:        name,
+		Description: description,
+		StartTime:   startTime,
+		EndTime:     endTime,
+		Capacity:    capacity,
+		Price:       price,
+		Status:      status,
+	}); err != nil {
+		return fmt.Errorf("UpdateShiftServ: %w", err)
+	}
+
+	return nil
+}
+func (s *Service) DeleteShift(ctx context.Context, id string) error {
+	if id == "" {
+		return fmt.Errorf("id is empty")
+	}
+	shift, err := s.repo.GetShift(ctx, id)
+	if err != nil {
+		return err
+	}
+	err = s.authorize(ctx, ActionDeleteShift, shift.CampID)
+	if err != nil {
+		return err
+	}
+	err = s.repo.DeleteShift(ctx, id)
+	if err != nil {
+		return fmt.Errorf("DeleteShiftServ: %w", err)
+	}
+	return nil
+}
+
+func (s *Service) ListShifts(ctx context.Context) ([]*Shift, error) {
+	err := s.authorize(ctx, ActionListShifts, "")
+	if err != nil {
+		return nil, err
+	}
+	shifts, err := s.repo.ListShifts(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("ListShiftsServ: %w", err)
+	}
+	return shifts, nil
+}
+
+func (s *Service) ListShiftsForCamp(ctx context.Context, campID string) ([]*Shift, error) {
+	shifts, err := s.repo.ListShiftsForCamp(ctx, campID)
+	if err != nil {
+		return nil, fmt.Errorf("ListShiftsServ: %w", err)
+	}
+	return shifts, nil
+}
 
 func (s *Service) BookShift(ctx context.Context, shiftID, userID string) (bool, error) {
 	if userID == "" || shiftID == "" {
@@ -196,9 +273,9 @@ func (s *Service) BookShift(ctx context.Context, shiftID, userID string) (bool, 
 	if err != nil {
 		return false, fmt.Errorf("GetShiftServ: %w", err)
 	}
-	//if shift.EndTime.Before(time.Now()) || shift.Status != ShiftStatusInactive {
-	//return false, fmt.Errorf("shift is already active or expired")
-	//}
+	if shift.EndTime.Before(time.Now()) {
+		return false, fmt.Errorf("shift is already active or expired")
+	}
 	if err := s.repo.CreateBooking(ctx, shift.ID, userID); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -221,15 +298,13 @@ func (s *Service) BookShift(ctx context.Context, shiftID, userID string) (bool, 
 	if err != nil {
 		return false, fmt.Errorf("CreateBooking: %w", err)
 	}
-	fmt.Printf("DEBUG: Sending to Kafka: %s\n", string(data)) // ЛОГ 1
-
 	if err := s.writer.WriteMessages(ctx, kafka.Message{
 		Value: data,
 	}); err != nil {
-		fmt.Printf("ERROR: Kafka write failed: %v\n", err) // ЛОГ 2
+		fmt.Printf("ERROR: Kafka write failed: %v\n", err)
 		return false, fmt.Errorf("CreateBookingKafka: %w", err)
 	}
 
-	fmt.Println("DEBUG: Message successfully sent to Kafka!") // ЛОГ 3
+	fmt.Println("DEBUG: Message successfully sent to Kafka!")
 	return true, nil
 }

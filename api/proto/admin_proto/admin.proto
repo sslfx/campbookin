@@ -33,40 +33,52 @@ message UpdateCampRequest{
   string description = 3;
   string address = 4;
 }
+
 message UpdateCampResponse{
   bool success = 1;
 }
+
 message GetCampRequest{
   string id = 1;
 }
+
 message GetCampResponse{
   Camp camp = 1;
 }
+
 message CreateCampRequest{
   string name = 3;
   string description = 4;
   string address = 5;
 }
+
 message CreateCampResponse{
   string id = 1;
 }
+
 message DeleteCampRequest{
   string id = 1;
 }
+
 message DeleteCampResponse{
   bool success = 1;
 }
+
 message ListCampsRequest{}
+
 message ListCampsResponse{
   repeated Camp camps = 1;
 }
+
 message AssignRequest{
   string user_id = 1;
   string camp_id = 2;
 }
+
 message AssignResponse{
   bool success = 1;
 }
+
 message CreateShiftRequest{
   string name = 1;
   google.protobuf.Timestamp start_time = 2;
@@ -77,28 +89,66 @@ message CreateShiftRequest{
   Status status = 7;
   string description = 8;
 }
+
 message CreateShiftResponse{
   string id = 1;
 }
-message ListShiftsRequest{
+
+message GetShiftRequest{
+  string id = 1;
+}
+
+message GetShiftResponse{
+  Shift shift = 1;
+}
+
+message UpdateShiftRequest{
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp start_time = 9;
+  google.protobuf.Timestamp end_time = 4;
+  int32 capacity = 5;
+  int32 price = 6;
+  string camp_id = 7;
+  Status status = 8;
+}
+
+message UpdateShiftResponse{
+  bool success = 1;
+}
+
+message DeleteShiftRequest{
+  string id = 1;
+}
+
+message DeleteShiftResponse{
+  bool success = 1;
+}
+
+message ListShiftsForCampRequest{
   string camp_id = 1;
 }
+
+message ListShiftsForCampResponse{
+  repeated Shift shifts = 1;
+}
+
+message ListShiftsRequest{}
+
 message ListShiftsResponse{
   repeated Shift shifts = 1;
 }
+
 message BookShiftRequest{
   string shift_id = 1;
   string user_id = 2;
 }
+
 message BookShiftResponse{
   bool success = 1;
 }
-message GetShiftRequest{
-  string id = 1;
-}
-message GetShiftResponse{
-  Shift shift = 1;
-}
+
 service CampAdmin{
 
   rpc Assign(AssignRequest) returns (AssignResponse);
@@ -116,6 +166,12 @@ service CampAdmin{
   rpc CreateShift(CreateShiftRequest) returns (CreateShiftResponse);
 
   rpc GetShift(GetShiftRequest) returns (GetShiftResponse);
+
+  rpc UpdateShift(UpdateShiftRequest) returns (UpdateShiftResponse);
+
+  rpc DeleteShift(DeleteShiftRequest) returns (DeleteShiftResponse);
+
+  rpc ListShiftsForCamp(ListShiftsForCampRequest) returns (ListShiftsForCampResponse);
 
   rpc ListShifts(ListShiftsRequest) returns (ListShiftsResponse);
 

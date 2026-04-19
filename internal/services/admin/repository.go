@@ -194,6 +194,67 @@ func (r *Repository) GetShift(ctx context.Context, id string) (*Shift, error) {
 	}
 	return &shift, nil
 }
+
+func (r *Repository) DeleteShift(ctx context.Context, id string) error {
+	query := `DELETE FROM shifts WHERE id = $1`
+	_, err := r.pool.Exec(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("DeleteShift: %w", err)
+	}
+	return nil
+}
+func (r *Repository) UpdateShift(ctx context.Context, shift *Shift) error {
+	query := `UPDATE shifts SET name = $1, description = $2, start_time = $3, end_time = $4, price = $5, capacity = $6, status = $7 WHERE id = $8`
+	_, err := r.pool.Exec(ctx, query, shift.Name, shift.Description, shift.StartTime.UTC(), shift.EndTime.UTC(), shift.Price, shift.Capacity, shift.Status, shift.ID)
+	if err != nil {
+		return fmt.Errorf("UpdateShiftRep: %w", err)
+	}
+	return nil
+}
+
+func (r *Repository) ListShifts(ctx context.Context) ([]*Shift, error) {
+	query := `SELECT id,camp_id,description,name,start_time,end_time,price,capacity,status FROM shifts`
+	var shifts []*Shift
+	rows, err := r.pool.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("ListShifts: %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var shift Shift
+		if err := rows.Scan(&shift.ID, &shift.CampID, &shift.Description, &shift.Name, &shift.StartTime, &shift.EndTime, &shift.Price, &shift.Capacity, &shift.Status); err != nil {
+			return nil, fmt.Errorf("ListShifts: %w", err)
+		}
+		shifts = append(shifts, &shift)
+
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ListShifts: %w", err)
+	}
+	return shifts, nil
+}
+func (r *Repository) ListShiftsForCamp(ctx context.Context, campID string) ([]*Shift, error) {
+	query := `SELECT id,camp_id,description,name,start_time,end_time,price,capacity,status FROM shifts AND camp_id = $1`
+	var shifts []*Shift
+	rows, err := r.pool.Query(ctx, query, campID)
+	if err != nil {
+		return nil, fmt.Errorf("ListShifts: %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var shift Shift
+		if err := rows.Scan(&shift.ID, &shift.CampID, &shift.Description, &shift.Name, &shift.StartTime, &shift.EndTime, &shift.Price, &shift.Capacity, &shift.Status); err != nil {
+			return nil, fmt.Errorf("ListShifts: %w", err)
+		}
+		shifts = append(shifts, &shift)
+
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ListShifts: %w", err)
+	}
+	return shifts, nil
+}
+
 func (r *Repository) CreateBooking(ctx context.Context, shiftID, userID string) error {
 	id := generageID()
 	query := `INSERT INTO bookings (id,user_id,shift_id) VALUES ($1, $2, $3)`

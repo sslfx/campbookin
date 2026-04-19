@@ -9,7 +9,6 @@ import (
 )
 
 func (n *NotificationService) StartKafkaListener(ctx context.Context, email, pass string) {
-	// Используем новый GroupID, чтобы подхватить сообщения, которые могли быть "пропущены"
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{"kafka:9092"},
 		Topic:   "bookings.create",
@@ -18,7 +17,7 @@ func (n *NotificationService) StartKafkaListener(ctx context.Context, email, pas
 	})
 	defer reader.Close()
 
-	log.Println(">>> Notification service: Listener started. Waiting for messages from Kafka...")
+	log.Println("Waiting for messages from Kafka")
 
 	job := make(chan BookingTicket, 100)
 
@@ -28,26 +27,16 @@ func (n *NotificationService) StartKafkaListener(ctx context.Context, email, pas
 	}
 
 	for {
-		// Читаем сообщение
-		log.Println("DEBUG: Reader is polling...")
 		msg, err := reader.ReadMessage(ctx)
 		if err != nil {
-			log.Printf("!!! KAFKA READ ERROR: %v", err)
 			if ctx.Err() != nil {
-				log.Println("!!! Kafka listener stopped by context")
 				close(job)
 				return
 			}
-			log.Println("!!! Read message error:", err)
 			continue
 		}
-
-		log.Printf("--> Kafka Message Received! Partition: %d, Offset: %d", msg.Partition, msg.Offset)
-
-		// Декодируем сообщение (создаем новую переменную для каждой итерации)
 		var event BookingTicket
 		if err := json.Unmarshal(msg.Value, &event); err != nil {
-			log.Println("!!! Unmarshal message error:", err)
 			continue
 		}
 		job <- event
