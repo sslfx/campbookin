@@ -70,10 +70,8 @@ func (m *mockAdminRepo) UpdateCamp(ctx context.Context, c *Camp) error {
 func (m *mockAdminRepo) Assing(ctx context.Context, userID, campID string) error {
 	return m.AssingFunc(ctx, userID, campID)
 }
-func ListShiftsForCamp(ctx context.Context, campID string) ([]*Shift, error) {
-	return []*Shift{
-		{ID: "shift-1", Name: "First Shift", CampID: campID},
-	}, nil
+func (m *mockAdminRepo) ListShiftsForCamp(ctx context.Context, campID string) ([]*Shift, error) {
+	return m.ListShiftsForCampFunc(ctx, campID)
 }
 
 func TestCreateCampAsAdmin(t *testing.T) {
@@ -350,12 +348,18 @@ func TestUpdateCamp_Validation(t *testing.T) {
 }
 func TestAdminService(t *testing.T) {
 	mockRepo := &mockAdminRepo{
-		GetUserRoleFunc:       func(ctx context.Context, id string) (string, error) { return "SUPER_ADMIN", nil },
-		GetCampFunc:           func(ctx context.Context, id string) (*Camp, error) { return &Camp{ID: id}, nil },
-		AssingFunc:            func(ctx context.Context, u, c string) error { return nil },
-		UpdateCampFunc:        func(ctx context.Context, c *Camp) error { return nil },
-		ListShiftsFunc:        func(ctx context.Context) ([]*Shift, error) { return []*Shift{{ID: "s1"}}, nil },
-		ListShiftsForCampFunc: func(ctx context.Context, c string) ([]*Shift, error) { return nil, nil },
+		GetUserRoleFunc: func(ctx context.Context, id string) (string, error) { return "SUPER_ADMIN", nil },
+		GetCampFunc:     func(ctx context.Context, id string) (*Camp, error) { return &Camp{ID: id}, nil },
+		AssingFunc:      func(ctx context.Context, u, c string) error { return nil },
+		UpdateCampFunc:  func(ctx context.Context, c *Camp) error { return nil },
+		ListShiftsForCampFunc: func(ctx context.Context, campID string) ([]*Shift, error) {
+			return []*Shift{}, nil
+		},
+
+		// На всякий случай проверь и эту, если она используется в "Lists":
+		ListShiftsFunc: func(ctx context.Context) ([]*Shift, error) {
+			return []*Shift{}, nil
+		},
 	}
 	s := &Service{repo: mockRepo}
 	ctx := context.WithValue(context.Background(), userIDKey, "admin")
