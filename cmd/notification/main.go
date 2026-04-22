@@ -65,8 +65,8 @@ func main() {
 	authClient := pb.NewCampRegistrationClient(connAuth)
 	adminClient := pb2.NewCampAdminClient(connAdmin)
 
-	defer connAuth.Close()
-	defer connAdmin.Close()
+	defer func() { _ = connAuth.Close() }()
+	defer func() { _ = connAdmin.Close() }()
 
 	ns := notification.NewNotificationService(authClient, adminClient, redisAddr)
 

@@ -31,9 +31,9 @@ func NewNotificationService(authClient pb.CampRegistrationClient, adminClient pb
 		}),
 	}
 }
-func (ns *NotificationService) StopRedis() error {
+func (n *NotificationService) StopRedis() error {
 	log.Println("Shutting down redis listener")
-	err := ns.redis.Close()
+	err := n.redis.Close()
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (n *NotificationService) processBooking(ctx context.Context, email, pass st
 		log.Printf("Error generating PDF: %v", err)
 		return
 	}
-	defer os.Remove(pdfPath)
+	defer func() { _ = os.Remove(pdfPath) }()
 	err = n.SendEmailWithRetry(userInfo, pdfPath, pass, email)
 	if err != nil {
 		log.Printf("Error sending email: %v", err)
@@ -97,7 +97,7 @@ func (n *NotificationService) takeInformation(ctx context.Context, userId, shift
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	var shiftData pb2.GetShiftResponse
+	var shiftData *pb2.GetShiftResponse
 	shiftKey := fmt.Sprintf("shift:%s", shiftId)
 
 	err := n.getCachedData(ctx, shiftKey, &shiftData)
@@ -107,11 +107,11 @@ func (n *NotificationService) takeInformation(ctx context.Context, userId, shift
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		shiftData = *resp
+		shiftData = resp
 		n.setCache(ctx, shiftKey, &shiftData, 10*time.Minute)
 	}
 
-	var campData pb2.GetCampResponse
+	var campData *pb2.GetCampResponse
 	campKey := fmt.Sprintf("camp:%s", shiftData.Shift.CampId)
 
 	err = n.getCachedData(ctx, campKey, &campData)
@@ -121,11 +121,11 @@ func (n *NotificationService) takeInformation(ctx context.Context, userId, shift
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		campData = *resp
+		campData = resp
 		n.setCache(ctx, campKey, &campData, 10*time.Minute)
 	}
 
-	var userData pb.GetUserResponse
+	var userData *pb.GetUserResponse
 	userKey := fmt.Sprintf("user:%s", userId)
 
 	err = n.getCachedData(ctx, userKey, &userData)
@@ -135,7 +135,7 @@ func (n *NotificationService) takeInformation(ctx context.Context, userId, shift
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		userData = *resp
+		userData = resp
 		n.setCache(ctx, userKey, &userData, 10*time.Minute)
 	}
 

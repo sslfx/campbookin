@@ -16,7 +16,7 @@ func (n *NotificationService) StartKafkaListener(ctx context.Context, email, pas
 		//GroupID:     "notification-service-v4-а",
 		StartOffset: kafka.FirstOffset,
 	})
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 
 	log.Println("Waiting for messages from Kafka")
 

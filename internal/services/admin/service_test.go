@@ -15,6 +15,9 @@ type mockAdminRepo struct {
 	GetShiftFunc      func(ctx context.Context, id string) (*Shift, error)
 	CreateBookingFunc func(ctx context.Context, shiftID, userID string) error
 }
+type contextKey string
+
+const userIDKey contextKey = "userID"
 
 func (m *mockAdminRepo) GetUserRole(ctx context.Context, id string) (string, error) {
 	return m.GetUserRoleFunc(ctx, id)
@@ -46,7 +49,7 @@ func TestCreateCamp_AsAdmin(t *testing.T) {
 	}
 	s := &Service{repo: mockRepo}
 
-	ctx := context.WithValue(context.Background(), "userID", "admin-1")
+	ctx := context.WithValue(context.Background(), userIDKey, "admin-1")
 
 	camp, err := s.CreateCamp(ctx, "Зарница", "Описание", "Ржев")
 
@@ -71,7 +74,7 @@ func TestCreateShift_AsDirector(t *testing.T) {
 		},
 	}
 	s := &Service{repo: mockRepo}
-	ctx := context.WithValue(context.Background(), "userID", "dir-1")
+	ctx := context.WithValue(context.Background(), userIDKey, "dir-1")
 
 	startTime := time.Now().Add(time.Hour)
 	endTime := time.Now().Add(time.Hour * 24)
@@ -111,7 +114,7 @@ func TestAuthorize_Forbidden(t *testing.T) {
 		},
 	}
 	s := &Service{repo: mockRepo}
-	ctx := context.WithValue(context.Background(), "userID", "simple-user")
+	ctx := context.WithValue(context.Background(), userIDKey, "simple-user")
 
 	err := s.authorize(ctx, ActionDeleteCamp, "camp-1")
 

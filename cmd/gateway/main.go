@@ -68,8 +68,8 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	defer connAuth.Close()
-	defer connAdmin.Close()
+	defer func() { _ = connAuth.Close() }()
+	defer func() { _ = connAdmin.Close() }()
 
 	authClient := pb1.NewCampRegistrationClient(connAuth)
 	adminClient := pb2.NewCampAdminClient(connAdmin)

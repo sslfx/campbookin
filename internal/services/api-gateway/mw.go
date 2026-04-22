@@ -14,7 +14,7 @@ import (
 func (gw *Gateway) RateLimiterMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, ok := r.Context().Value("userID").(string)
-		if ok == false {
+		if !ok {
 			return
 		}
 		ctx := r.Context()

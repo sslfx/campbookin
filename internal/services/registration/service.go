@@ -53,7 +53,7 @@ func (s *Service) Register(ctx context.Context, email, password, name string) (*
 		Name:         name,
 	}
 	if err := s.repo.CreateUser(ctx, user); err != nil {
-		return nil, fmt.Errorf("Create: %w", err)
+		return nil, fmt.Errorf("create: %w", err)
 	}
 	return user, nil
 
