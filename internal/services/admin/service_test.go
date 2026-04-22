@@ -15,9 +15,6 @@ type mockAdminRepo struct {
 	GetShiftFunc      func(ctx context.Context, id string) (*Shift, error)
 	CreateBookingFunc func(ctx context.Context, shiftID, userID string) error
 }
-type contextKey string
-
-const userIDKey contextKey = "userID"
 
 func (m *mockAdminRepo) GetUserRole(ctx context.Context, id string) (string, error) {
 	return m.GetUserRoleFunc(ctx, id)
