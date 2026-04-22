@@ -20,26 +20,6 @@ type mockAdminClient struct {
 	GetCampFunc  func(context.Context, *pb2.GetCampRequest, ...grpc.CallOption) (*pb2.GetCampResponse, error)
 }
 
-// В файле notification/service_test.go
-
-func TestGeneratePDF_Minimal(t *testing.T) {
-	// Если файла шрифта нет, тест просто закроет ветку ошибки и выйдет
-	// Но для покрытия это тоже полезно
-	user := &UserInfo{Name: "Max", Email: "max@rzhev.ru"}
-	shift := &ShiftInfo{Name: "Shift", StartTime: time.Now(), EndTime: time.Now().Add(time.Hour)}
-	camp := &CampInfo{Name: "Zarnitsa", Address: "Rzhev"}
-
-	path, err := GeneratePDF(user, shift, camp)
-	if err == nil {
-		defer func() { _ = os.Remove(path) }()
-		if path == "" {
-			t.Error("path is empty")
-		}
-	} else {
-		t.Logf("PDF not generated (probably font missing), but branch covered: %v", err)
-	}
-}
-
 type mockAuthClient struct {
 	pb.CampRegistrationClient
 	GetUserFunc func(context.Context, *pb.GetUserRequest, ...grpc.CallOption) (*pb.GetUserResponse, error)
@@ -56,7 +36,7 @@ func (m *mockAdminClient) GetCamp(ctx context.Context, req *pb2.GetCampRequest, 
 func (m *mockAuthClient) GetUser(ctx context.Context, req *pb.GetUserRequest, opts ...grpc.CallOption) (*pb.GetUserResponse, error) {
 	return m.GetUserFunc(ctx, req, opts...)
 }
-func TestTakeInformation_CacheFlow(t *testing.T) {
+func TestTakeInformation(t *testing.T) {
 	s := miniredis.RunT(t)
 	rClient := redis.NewClient(&redis.Options{Addr: s.Addr()})
 
@@ -112,5 +92,28 @@ func TestTakeInformation_CacheFlow(t *testing.T) {
 
 	if grpcCalls > 3 {
 		t.Errorf("Данные должны были взяться из кэша, но gRPC вызван повторно! Всего вызовов: %d", grpcCalls)
+	}
+}
+func TestGeneratePDF(t *testing.T) {
+	fontPath := "Roboto.ttf"
+	f, _ := os.Create(fontPath)
+	err := f.Close()
+	if err != nil {
+		return
+	}
+	defer func() { _ = os.Remove(fontPath) }()
+
+	user := &UserInfo{Name: "Max", Email: "max@rzhev.ru"}
+	shift := &ShiftInfo{Name: "Shift", StartTime: time.Now(), EndTime: time.Now().Add(time.Hour)}
+	camp := &CampInfo{Name: "Zarnitsa", Address: "Rzhev"}
+
+	path, err := GeneratePDF(user, shift, camp)
+	if err == nil {
+		defer func() { _ = os.Remove(path) }()
+		if path == "" {
+			t.Error("path is empty")
+		}
+	} else {
+		t.Logf("PDF not generated (probably font missing), but branch covered: %v", err)
 	}
 }

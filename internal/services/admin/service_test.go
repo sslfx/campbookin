@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"campbookin/pkg"
 	"context"
 	"testing"
 	"time"
@@ -378,7 +379,44 @@ func TestAdminService(t *testing.T) {
 	})
 
 	t.Run("Lists", func(t *testing.T) {
-		s.ListShifts(ctx)
-		s.ListShiftsForCamp(ctx, "camp-1")
+		shifts, err := s.ListShifts(ctx)
+		if err != nil {
+			t.Errorf("Lists failed: %v", err)
+		}
+		if shifts == nil {
+			t.Errorf("Lists failed: %v", err)
+		}
+		shiftsForCamp, err := s.ListShiftsForCamp(ctx, "camp-1")
+		if err != nil {
+			t.Errorf("ListShiftsForCamp failed: %v", err)
+		}
+		if shiftsForCamp == nil {
+			t.Errorf("ListShiftsForCamp failed: %v", err)
+		}
 	})
+}
+func TestServiceGetShift(t *testing.T) {
+	mockRepo := &mockAdminRepo{
+		GetShiftFunc: func(ctx context.Context, id string) (*Shift, error) {
+			return &Shift{ID: id}, nil
+		},
+	}
+	s := &Service{repo: mockRepo}
+	_, err := s.GetShift(context.Background(), "s1")
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = s.GetShift(context.Background(), "")
+	if err == nil {
+		t.Error("expected error")
+	}
+}
+func TestInits(t *testing.T) {
+	_ = NewRepository(nil)
+	srv := &Service{}
+	h := NewHandler(srv, pkg.With())
+
+	if h == nil {
+		t.Fatal("failed to init handler")
+	}
 }

@@ -1,6 +1,7 @@
 package registration
 
 import (
+	"campbookin/pkg"
 	"context"
 	"errors"
 	"strings"
@@ -215,5 +216,13 @@ func TestRegistrationEdgeCases(t *testing.T) {
 	_, err = s.GetUser(context.Background(), "")
 	if err == nil {
 		t.Error("expected error on empty id")
+	}
+}
+func TestInits(t *testing.T) {
+	repo := NewRepository(nil)
+	srv := NewService(repo, []byte("secret"))
+	h := NewHandler(srv, pkg.With())
+	if h == nil {
+		t.Fatal("failed to init handler")
 	}
 }
