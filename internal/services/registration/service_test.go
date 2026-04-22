@@ -190,7 +190,7 @@ func TestService_Errors(t *testing.T) {
 		if err != nil {
 			t.Error("Должен найти юзера")
 		}
-		
+
 		_, err = s.GetUser(context.Background(), "not_found")
 		if err == nil {
 			t.Error("Ожидалась ошибка 'invalid id'")
@@ -201,4 +201,19 @@ func TestService_Errors(t *testing.T) {
 			t.Error("Ожидалась ошибка GetUser:")
 		}
 	})
+}
+func TestRegistrationEdgeCases(t *testing.T) {
+	s := NewService(nil, []byte("secret"))
+	_, err := s.Login(context.Background(), "", "")
+	if err == nil {
+		t.Error("expected error on empty login")
+	}
+	_, err = s.Register(context.Background(), "", "", "")
+	if err == nil {
+		t.Error("expected error on empty reg")
+	}
+	_, err = s.GetUser(context.Background(), "")
+	if err == nil {
+		t.Error("expected error on empty id")
+	}
 }

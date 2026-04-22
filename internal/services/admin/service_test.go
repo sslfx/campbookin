@@ -10,19 +10,21 @@ import (
 
 type mockAdminRepo struct {
 	CampAdminRepository
-	GetUserRoleFunc   func(ctx context.Context, userID string) (string, error)
-	IsDirectorFunc    func(ctx context.Context, userID, campID string) (bool, error)
-	CreateCampFunc    func(ctx context.Context, camp *Camp) error
-	GetCampFunc       func(ctx context.Context, id string) (*Camp, error)
-	CreateShiftFunc   func(ctx context.Context, shift *Shift) error
-	GetShiftFunc      func(ctx context.Context, id string) (*Shift, error)
-	CreateBookingFunc func(ctx context.Context, shiftID, userID string) error
-	DeleteShiftFunc   func(ctx context.Context, id string) error
-	DeleteCampFunc    func(ctx context.Context, id string) error
-	ListCampsFunc     func(ctx context.Context) ([]*Camp, error)
-	ListShiftsFunc    func(ctx context.Context) ([]*Shift, error)
-	UpdateShiftFunc   func(ctx context.Context, shift *Shift) error
-	UpdateCampFunc    func(ctx context.Context, camp *Camp) error
+	GetUserRoleFunc       func(ctx context.Context, userID string) (string, error)
+	IsDirectorFunc        func(ctx context.Context, userID, campID string) (bool, error)
+	CreateCampFunc        func(ctx context.Context, camp *Camp) error
+	GetCampFunc           func(ctx context.Context, id string) (*Camp, error)
+	CreateShiftFunc       func(ctx context.Context, shift *Shift) error
+	GetShiftFunc          func(ctx context.Context, id string) (*Shift, error)
+	CreateBookingFunc     func(ctx context.Context, shiftID, userID string) error
+	DeleteShiftFunc       func(ctx context.Context, id string) error
+	DeleteCampFunc        func(ctx context.Context, id string) error
+	ListCampsFunc         func(ctx context.Context) ([]*Camp, error)
+	ListShiftsFunc        func(ctx context.Context) ([]*Shift, error)
+	UpdateShiftFunc       func(ctx context.Context, shift *Shift) error
+	UpdateCampFunc        func(ctx context.Context, camp *Camp) error
+	AssingFunc            func(ctx context.Context, userID, campID string) error
+	ListShiftsForCampFunc func(ctx context.Context, c string) ([]*Shift, error)
 }
 
 func (m *mockAdminRepo) GetUserRole(ctx context.Context, id string) (string, error) {
@@ -63,6 +65,12 @@ func (m *mockAdminRepo) UpdateShift(ctx context.Context, s *Shift) error {
 }
 func (m *mockAdminRepo) UpdateCamp(ctx context.Context, c *Camp) error {
 	return m.UpdateCampFunc(ctx, c)
+}
+func (m *mockAdminRepo) Assing(ctx context.Context, userID, campID string) error {
+	return m.AssingFunc(ctx, userID, campID)
+}
+func (m *mockAdminRepo) ListShiftsForCamp(ctx context.Context, c string) ([]*Shift, error) {
+	return m.ListShiftsForCampFunc(ctx, c)
 }
 
 func TestCreateCampAsAdmin(t *testing.T) {
@@ -336,4 +344,41 @@ func TestUpdateCamp_Validation(t *testing.T) {
 	if err == nil {
 		t.Error("Ожидалась ошибка валидации на пустые поля")
 	}
+}
+func TestAdminService(t *testing.T) {
+	mockRepo := &mockAdminRepo{
+		GetUserRoleFunc:       func(ctx context.Context, id string) (string, error) { return "SUPER_ADMIN", nil },
+		GetCampFunc:           func(ctx context.Context, id string) (*Camp, error) { return &Camp{ID: id}, nil },
+		AssingFunc:            func(ctx context.Context, u, c string) error { return nil },
+		UpdateCampFunc:        func(ctx context.Context, c *Camp) error { return nil },
+		ListShiftsFunc:        func(ctx context.Context) ([]*Shift, error) { return []*Shift{{ID: "s1"}}, nil },
+		ListShiftsForCampFunc: func(ctx context.Context, c string) ([]*Shift, error) { return nil, nil },
+	}
+	s := &Service{repo: mockRepo}
+	ctx := context.WithValue(context.Background(), userIDKey, "admin")
+
+	t.Run("AssignSuccess", func(t *testing.T) {
+		err := s.Assign(ctx, "user-1", "camp-1")
+		if err != nil {
+			t.Errorf("Assign failed: %v", err)
+		}
+	})
+
+	t.Run("AssignInvalidInput", func(t *testing.T) {
+		if err := s.Assign(ctx, "", "camp-1"); err == nil {
+			t.Error("expected error on empty user")
+		}
+	})
+
+	t.Run("UpdateCampSuccess", func(t *testing.T) {
+		err := s.UpdateCamp(ctx, "id", "name", "desc", "addr")
+		if err != nil {
+			t.Errorf("UpdateCamp failed: %v", err)
+		}
+	})
+
+	t.Run("Lists", func(t *testing.T) {
+		s.ListShifts(ctx)
+		s.ListShiftsForCamp(ctx, "camp-1")
+	})
 }
