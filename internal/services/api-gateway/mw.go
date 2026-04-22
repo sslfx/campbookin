@@ -11,6 +11,10 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+type contextKey string
+
+const userIDKey contextKey = "userID"
+
 func (gw *Gateway) RateLimiterMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, ok := r.Context().Value("userID").(string)
@@ -35,8 +39,6 @@ func (gw *Gateway) RateLimiterMiddleware(next http.Handler) http.Handler {
 
 func (gw *Gateway) JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		fmt.Println(">>> MIDDLEWARE HIT")
-		fmt.Println("AUTH:", req.Header.Get("Authorization"))
 		authHeader := req.Header.Get("Authorization")
 		if authHeader == "" {
 			http.Error(w, "miss token", http.StatusUnauthorized)
@@ -68,7 +70,7 @@ func (gw *Gateway) JWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(req.Context(), "userID", userID)
+		ctx := context.WithValue(req.Context(), userIDKey, userID)
 		next.ServeHTTP(w, req.WithContext(ctx))
 	})
 }

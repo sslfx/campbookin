@@ -20,7 +20,9 @@ run_tests:
   script:
     - go mod download
     - go test -v -coverprofile=coverage.txt ./...
-    - grep -E "campbookin/internal/services/(admin|notification|registration)" coverage.txt > coverage_filtered.txt
+    - head -n 1 coverage.txt > coverage_filtered.txt
+    - grep -E "campbookin/internal/services/(admin|notification|registration)" coverage.txt >> coverage_filtered.txt
+
     - go tool cover -func=coverage_filtered.txt
     - |
       TOTAL_COVERAGE=$(go tool cover -func=coverage_filtered.txt | grep total | awk '{print $3}' | sed 's/%//')

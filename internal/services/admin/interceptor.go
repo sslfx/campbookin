@@ -10,6 +10,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+type contextKey string
+
+const userIDKey contextKey = "userID"
+
 func Interceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		publicMethods := []string{
@@ -29,7 +33,7 @@ func Interceptor() grpc.UnaryServerInterceptor {
 		if len(userIDs) == 0 {
 			return nil, status.Errorf(codes.Unauthenticated, "missing credentials")
 		}
-		ctx = context.WithValue(ctx, "userID", userIDs[0])
+		ctx = context.WithValue(ctx, userIDKey, userIDs[0])
 		return handler(ctx, req)
 	}
 }

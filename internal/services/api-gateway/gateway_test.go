@@ -111,7 +111,7 @@ func TestBookShift_RateLimit(t *testing.T) {
 	}
 	gw := &Gateway{adminClient: mockAdmin, redis: rClient}
 
-	ctx := context.WithValue(context.Background(), "userID", "user123")
+	ctx := context.WithValue(context.Background(), userIDKey, "user123")
 
 	req1 := httptest.NewRequest("POST", "/shifts/1/book", nil).WithContext(ctx)
 	rctx1 := chi.NewRouteContext()
