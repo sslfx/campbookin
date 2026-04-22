@@ -1,4 +1,4 @@
-.PHONY: proto build up down
+.PHONY: proto build up down downv gendocs
 
 PROTO_DIR=./api/proto
 OUT_DIR=./api/proto/proto_output
@@ -21,6 +21,12 @@ up:
 	docker-compose up -v
 	@echo "Services are running"
 
-down:
+downv:
 	docker-compose down -v
-	@echo "Shutting down"
+	@echo "Shutting down with clear volumes"
+down:
+	docker-compose down
+	@echo "shutdown"
+gendocs:
+	swag init -g cmd/gateway/main.go -o cmd/gateway/docs
+	@echo "Documentation was generated successfully"

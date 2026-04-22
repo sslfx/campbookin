@@ -8,12 +8,16 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"google.golang.org/grpc"
 )
 
 func main() {
-	ctx := context.Background()
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer stop()
 
 	//env
 	if err := pkg.LoadEnv(".env"); err != nil {
@@ -27,8 +31,10 @@ func main() {
 	//logger
 	pkg.Setup(env)
 	logger := pkg.With()
+
 	//db
 	pool := pkg.MustNewPool(ctx, dsn)
+	defer pool.Close()
 
 	//deps
 	repo := registration.NewRepository(pool)
@@ -39,10 +45,23 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+
 	grpcServer := grpc.NewServer()
 	pb.RegisterCampRegistrationServer(grpcServer, handler)
 	log.Printf("RegServer listening at %v", lis.Addr())
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil && err != grpc.ErrServerStopped {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Print("Shutting down server")
+
+	_, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	grpcServer.GracefulStop()
+	log.Print("Server gracefully stopped")
 }

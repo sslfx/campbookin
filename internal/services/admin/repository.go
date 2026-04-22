@@ -234,7 +234,7 @@ func (r *Repository) ListShifts(ctx context.Context) ([]*Shift, error) {
 	return shifts, nil
 }
 func (r *Repository) ListShiftsForCamp(ctx context.Context, campID string) ([]*Shift, error) {
-	query := `SELECT id,camp_id,description,name,start_time,end_time,price,capacity,status FROM shifts AND camp_id = $1`
+	query := `SELECT id,camp_id,description,name,start_time,end_time,price,capacity,status FROM shifts WHERE camp_id = $1`
 	var shifts []*Shift
 	rows, err := r.pool.Query(ctx, query, campID)
 	if err != nil {

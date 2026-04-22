@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -29,45 +30,64 @@ const retryPolicy = `{
 }`
 
 func main() {
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	//env
 	if err := pkg.LoadEnv(".env"); err != nil {
 		os.Exit(2)
 	}
-
 	pass := pkg.MustGet("PASS")
 	email := pkg.MustGet("EMAIL")
 	redisAddr := pkg.MustGet("REDIS_ADDR")
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+
 	log.Println("Notification service started")
+
 	connAuth, err := grpc.NewClient(
 		"reg:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(retryPolicy),
 	)
-	defer connAuth.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-	authClient := pb.NewCampRegistrationClient(connAuth)
 
-	// admin
 	connAdmin, err := grpc.NewClient(
 		"admin:50052",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(retryPolicy),
 	)
-	defer connAdmin.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	authClient := pb.NewCampRegistrationClient(connAuth)
 	adminClient := pb2.NewCampAdminClient(connAdmin)
+
+	defer connAuth.Close()
+	defer connAdmin.Close()
+
 	ns := notification.NewNotificationService(authClient, adminClient, redisAddr)
+
+	done := make(chan struct{})
 	go func() {
+		log.Println("kafka started")
 		ns.StartKafkaListener(ctx, email, pass)
+		close(done)
 	}()
 	<-ctx.Done()
-	log.Println(">>> Starting Kafka Listener...")
-	ns.StartKafkaListener(ctx, email, pass)
-	log.Println("Shutting down")
+
+	log.Println("shutting down notification service")
+
+	select {
+	case <-done:
+		log.Println("All workers finished. Shutdown complete.")
+	case <-time.After(15 * time.Second):
+		log.Println("Shutdown timeout reached. Forcing exit.")
+	}
+
+	if err := ns.StopRedis(); err != nil {
+		log.Printf("Redis close error: %v", err)
+	}
 }

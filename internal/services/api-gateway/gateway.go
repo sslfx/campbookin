@@ -5,11 +5,15 @@ import (
 	pb1 "campbookin/api/proto/proto_output/reg_proto"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
+	_ "campbookin/cmd/gateway/docs"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-redis/redis/v8"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -32,7 +36,17 @@ func NewGateway(authClient pb1.CampRegistrationClient, adminClient pb2.CampAdmin
 		}),
 	}
 }
+func (gw *Gateway) StopRedis() error {
+	log.Printf("stopping redis")
+	err := gw.redis.Close()
+	if err != nil {
+		return err
+	}
+	log.Printf("stopped redis")
+	return nil
+}
 func (gw *Gateway) RegisterRoutes(r *chi.Mux) {
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 	r.Post("/registration", gw.Register)
 	r.Post("/login", gw.Login)
 	r.Group(func(protected chi.Router) {
@@ -54,18 +68,65 @@ func (gw *Gateway) RegisterRoutes(r *chi.Mux) {
 	})
 }
 
-type LoginRequest struct {
+type RegisterRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Name     string `json:"name"`
-}
-type LoginResponse struct {
-	Token string `json:"token"`
 }
 type RegisterResponse struct {
 	ID string `json:"id"`
 }
 
+// Register godoc
+// @Summary Регистрация
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body RegisterRequest true "Register data"
+// @Success 200 {object} RegisterResponse
+// @Failure 400 {string} string
+// @Router /registration [post]
+func (gw *Gateway) Register(w http.ResponseWriter, req *http.Request) {
+	var regReq RegisterRequest
+	if err := json.NewDecoder(req.Body).Decode(&regReq); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	regResp, err := gw.authClient.Registration(req.Context(), &pb1.RegistrationRequest{
+		Email:    regReq.Email,
+		Password: regReq.Password,
+		Name:     regReq.Name,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(RegisterResponse{
+		ID: regResp.Id,
+	}); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
+// Login godoc
+// @Summary Логин
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body LoginRequest true "Login data"
+// @Success 200 {object} LoginResponse
+// @Failure 400 {string} string
+// @Router /login [post]
 func (gw *Gateway) Login(w http.ResponseWriter, req *http.Request) {
 	var loginRequest LoginRequest
 	err := json.NewDecoder(req.Body).Decode(&loginRequest)
@@ -89,29 +150,6 @@ func (gw *Gateway) Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 }
-func (gw *Gateway) Register(w http.ResponseWriter, req *http.Request) {
-	var regReq LoginRequest
-	if err := json.NewDecoder(req.Body).Decode(&regReq); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-	regResp, err := gw.authClient.Registration(req.Context(), &pb1.RegistrationRequest{
-		Email:    regReq.Email,
-		Password: regReq.Password,
-		Name:     regReq.Name,
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(RegisterResponse{
-		ID: regResp.Id,
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
 
 type CreateCampRequest struct {
 	Name        string `json:"name"`
@@ -122,6 +160,16 @@ type CreateCampResponse struct {
 	Id string `json:"id"`
 }
 
+// CreateCamp godoc
+// @Summary Создать лагерь
+// @Tags Camps
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param input body CreateCampRequest true "Camp data"
+// @Success 200 {object} CreateCampResponse
+// @Failure 401 {string} string
+// @Router /camps [post]
 func (gw *Gateway) CreateCamp(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("--> CreateCamp Handler Started")
 	var createCampReq CreateCampRequest
@@ -157,6 +205,18 @@ type UpdateCampResponse struct {
 	Success bool `json:"success"`
 }
 
+// UpdateCamp godoc
+// @Summary Обновить лагерь
+// @Tags Camps
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Camp ID"
+// @Param input body UpdateCampRequest true "Camp data"
+// @Success 200 {object} UpdateCampResponse
+// @Failure 400 {string} string
+// @Failure 401 {string} string
+// @Router /camps/{id} [put]
 func (gw *Gateway) UpdateCamp(w http.ResponseWriter, req *http.Request) {
 	campID := chi.URLParam(req, "id")
 	if campID == "" {
@@ -192,6 +252,16 @@ type DeleteCampResponse struct {
 	Success bool `json:"success"`
 }
 
+// DeleteCamp godoc
+// @Summary Удалить лагерь
+// @Tags Camps
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Camp ID"
+// @Success 200 {object} DeleteCampResponse
+// @Failure 400 {string} string
+// @Failure 401 {string} string
+// @Router /camps/{id} [delete]
 func (gw *Gateway) DeleteCamp(w http.ResponseWriter, req *http.Request) {
 	campID := chi.URLParam(req, "id")
 	if campID == "" {
@@ -222,6 +292,16 @@ type GetCampResponse struct {
 	Address     string `json:"address"`
 }
 
+// GetCamp godoc
+// @Summary Получить лагерь
+// @Tags Camps
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Camp ID"
+// @Success 200 {object} GetCampResponse
+// @Failure 400 {string} string
+// @Failure 404 {string} string
+// @Router /camps/{id} [get]
 func (gw *Gateway) GetCamp(w http.ResponseWriter, req *http.Request) {
 	campID := chi.URLParam(req, "id")
 	if campID == "" {
@@ -253,6 +333,14 @@ type ListCampsResponse struct {
 	Camps []GetCampResponse `json:"camps"`
 }
 
+// ListCamps godoc
+// @Summary Список лагерей
+// @Tags Camps
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} ListCampsResponse
+// @Failure 401 {string} string
+// @Router /camps [get]
 func (gw *Gateway) ListCamps(w http.ResponseWriter, req *http.Request) {
 	ctx := gw.withAuthContext(req)
 	resp, err := gw.adminClient.ListCamps(ctx, &pb2.ListCampsRequest{})
@@ -286,6 +374,18 @@ type AssignDirectorResponse struct {
 	Success bool `json:"success"`
 }
 
+// AssignDirector godoc
+// @Summary Назначить директора
+// @Tags Camps
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Camp ID"
+// @Param input body AssignDirectorRequest true "User ID"
+// @Success 200 {object} AssignDirectorResponse
+// @Failure 400 {string} string
+// @Failure 401 {string} string
+// @Router /camps/{id}/assign [post]
 func (gw *Gateway) AssignDirector(w http.ResponseWriter, req *http.Request) {
 	campID := chi.URLParam(req, "id")
 	if campID == "" {
@@ -317,6 +417,16 @@ type BookShiftResponse struct {
 	Success bool `json:"success"`
 }
 
+// BookShift godoc
+// @Summary Забронировать смену
+// @Tags Booking
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Shift ID"
+// @Success 200 {object} BookShiftResponse
+// @Failure 429 {string} string
+// @Router /shifts/{id}/book [post]
+
 func (gw *Gateway) BookShift(w http.ResponseWriter, req *http.Request) {
 	shiftID := chi.URLParam(req, "id")
 	ctx := gw.withAuthContext(req)
@@ -347,6 +457,9 @@ func (gw *Gateway) BookShift(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// ShiftStatus статус смены
+// @Description Status of shift
+// @Enum 0 1 2
 type ShiftStatus int
 
 const (
@@ -369,6 +482,17 @@ type CreateShiftResponse struct {
 	Id string `json:"id"`
 }
 
+// CreateShift godoc
+// @Summary Создать смену
+// @Tags Shifts
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param input body CreateShiftRequest true "Shift data"
+// @Success 200 {object} CreateShiftResponse
+// @Failure 400 {string} string
+// @Failure 401 {string} string
+// @Router /shifts [post]
 func (gw *Gateway) CreateShift(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("CreateCamp Handler Started")
 	var createShiftReq CreateShiftRequest
@@ -412,6 +536,15 @@ type GetShiftResponse struct {
 	Status      ShiftStatus `json:"status"`
 }
 
+// GetShift godoc
+// @Summary Получить смену
+// @Tags Shifts
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Shift ID"
+// @Success 200 {object} GetShiftResponse
+// @Failure 400 {string} string
+// @Router /shifts/{id} [get]
 func (gw *Gateway) GetShift(w http.ResponseWriter, req *http.Request) {
 	shiftID := chi.URLParam(req, "id")
 	if shiftID == "" {
@@ -468,6 +601,18 @@ func mapStatusToProto(s ShiftStatus) pb2.Status {
 		return pb2.Status_SHIFT_UNKNOWN
 	}
 }
+
+// UpdateShift godoc
+// @Summary Обновить смену
+// @Tags Shifts
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Shift ID"
+// @Param input body UpdateShiftRequest true "Shift data"
+// @Success 200 {object} UpdateShiftResponse
+// @Failure 400 {string} string
+// @Router /shifts/{id} [put]
 func (gw *Gateway) UpdateShift(w http.ResponseWriter, req *http.Request) {
 	shiftID := chi.URLParam(req, "id")
 	if shiftID == "" {
@@ -508,6 +653,15 @@ type DeleteShiftResponse struct {
 	Success bool `json:"success"`
 }
 
+// DeleteShift godoc
+// @Summary Удалить смену
+// @Tags Shifts
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Shift ID"
+// @Success 200 {object} DeleteShiftResponse
+// @Failure 400 {string} string
+// @Router /shifts/{id} [delete]
 func (gw *Gateway) DeleteShift(w http.ResponseWriter, req *http.Request) {
 	shiftId := chi.URLParam(req, "id")
 	if shiftId == "" {
@@ -535,6 +689,13 @@ type ListShiftsResponse struct {
 	Shifts []GetShiftResponse `json:"shifts"`
 }
 
+// ListShifts godoc
+// @Summary Список смен
+// @Tags Shifts
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} ListShiftsResponse
+// @Router /shifts [get]
 func (gw *Gateway) ListShifts(w http.ResponseWriter, req *http.Request) {
 	ctx := gw.withAuthContext(req)
 	resp, err := gw.adminClient.ListShifts(ctx, &pb2.ListShiftsRequest{})
@@ -565,6 +726,15 @@ func (gw *Gateway) ListShifts(w http.ResponseWriter, req *http.Request) {
 	}
 
 }
+
+// ListShiftsForCamp godoc
+// @Summary Список смен лагеря
+// @Tags Shifts
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Camp ID"
+// @Success 200 {object} ListShiftsResponse
+// @Router /camps/{id}/shifts [get]
 func (gw *Gateway) ListShiftsForCamp(w http.ResponseWriter, req *http.Request) {
 	campID := chi.URLParam(req, "id")
 	ctx := gw.withAuthContext(req)

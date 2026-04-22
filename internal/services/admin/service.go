@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
@@ -89,7 +90,10 @@ func NewService(repo CampAdminRepository) *Service {
 		},
 	}
 }
-
+func (s *Service) Shutdown() error {
+	log.Println("Closing Kafka writer")
+	return s.writer.Close()
+}
 func (s *Service) CreateCamp(ctx context.Context, name, description, address string) (*Camp, error) {
 	if err := s.authorize(ctx, ActionCreateCamp, ""); err != nil {
 		return nil, err

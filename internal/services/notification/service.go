@@ -31,6 +31,14 @@ func NewNotificationService(authClient pb.CampRegistrationClient, adminClient pb
 		}),
 	}
 }
+func (ns *NotificationService) StopRedis() error {
+	log.Println("Shutting down redis listener")
+	err := ns.redis.Close()
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 type UserInfo struct {
 	Name  string

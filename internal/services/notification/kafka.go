@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"sync"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -20,20 +21,21 @@ func (n *NotificationService) StartKafkaListener(ctx context.Context, email, pas
 	log.Println("Waiting for messages from Kafka")
 
 	job := make(chan BookingTicket, 100)
-
+	var wg sync.WaitGroup
 	// Запускаем воркеры
 	for w := 1; w <= 5; w++ {
-		go n.worker(ctx, email, pass, job, w)
+		wg.Add(1)
+		go func() {
+			n.worker(ctx, email, pass, job, w)
+			wg.Done()
+		}()
 	}
 
 	for {
 		msg, err := reader.ReadMessage(ctx)
 		if err != nil {
-			if ctx.Err() != nil {
-				close(job)
-				return
-			}
-			continue
+			log.Println("Error reading from Kafka:", err)
+			break
 		}
 		var event BookingTicket
 		if err := json.Unmarshal(msg.Value, &event); err != nil {
@@ -41,6 +43,10 @@ func (n *NotificationService) StartKafkaListener(ctx context.Context, email, pas
 		}
 		job <- event
 	}
+
+	close(job)
+	wg.Wait()
+	log.Println("Shutting down Kafka listener")
 }
 
 func (n *NotificationService) worker(ctx context.Context, email, pass string, jobs <-chan BookingTicket, workerID int) {

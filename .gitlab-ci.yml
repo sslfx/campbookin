@@ -20,7 +20,20 @@ run_tests:
   script:
     - go mod download
     - go test -v -coverprofile=coverage.txt ./...
-    - go tool cover -func=coverage.txt
+    - grep -vE "gateway|pb.go" coverage.txt > coverage_filtered.txt
+    - go tool cover -func=coverage_filtered.txt
+    - |
+      TOTAL_COVERAGE=$(go tool cover -func=coverage_filtered.txt | grep total | awk '{print $3}' | sed 's/%//')
+      echo "Total coverage (excluding gateway): $TOTAL_COVERAGE%"
+      THRESHOLD=30.0
+      IS_LOW=$(echo "$TOTAL_COVERAGE $THRESHOLD" | awk '{if ($1 < $2) print 1; else print 0}')
+      
+      if [ "$IS_LOW" -eq "1" ]; then
+        echo "FAIL: Покрытие $TOTAL_COVERAGE% ниже допустимых $THRESHOLD%"
+        exit 1
+      else
+        echo "SUCCESS: Покрытие в норме"
+      fi
   artifacts:
     paths:
       - coverage.txt

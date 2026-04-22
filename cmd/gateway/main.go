@@ -1,3 +1,11 @@
+// @title Camp Booking API
+// @version 1.0
+// @description API для бронирования лагерей
+// @host localhost
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
@@ -9,6 +17,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -31,13 +41,17 @@ const retryPolicy = `{
 
 func main() {
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	//env
 	if err := pkg.LoadEnv(".env"); err != nil {
 		os.Exit(1)
 	}
 	secret := pkg.MustGet("PASS_SECRET")
 	addr := pkg.MustGet("REDIS_ADDR")
-	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+
+	//grpc clients
 	connAuth, err := grpc.NewClient("reg:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(retryPolicy),
@@ -45,7 +59,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer connAuth.Close()
+
 	connAdmin, err := grpc.NewClient("admin:50052",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(retryPolicy),
@@ -53,18 +67,42 @@ func main() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
+
+	defer connAuth.Close()
 	defer connAdmin.Close()
+
 	authClient := pb1.NewCampRegistrationClient(connAuth)
 	adminClient := pb2.NewCampAdminClient(connAdmin)
+
 	gw := api_gateway.NewGateway(authClient, adminClient, []byte(secret), addr)
 	r := chi.NewRouter()
 	gw.RegisterRoutes(r)
+
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: r,
 	}
-	log.Printf("Listening on port 8080")
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("listen error: %v", err)
+
+	go func() {
+		log.Printf("Listening on port 8080")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen error: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Print("Shutting down server")
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("could not stop server gracefully: %v", err)
 	}
+
+	if err := gw.StopRedis(); err != nil {
+		log.Fatalf("could not stop redis gracefully: %v", err)
+	}
+
+	log.Print("Gateway-service stopped")
 }

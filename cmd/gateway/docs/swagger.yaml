@@ -1,0 +1,564 @@
+basePath: /
+definitions:
+  api_gateway.AssignDirectorRequest:
+    properties:
+      user_id:
+        type: string
+    type: object
+  api_gateway.AssignDirectorResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  api_gateway.CreateCampRequest:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  api_gateway.CreateCampResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  api_gateway.CreateShiftRequest:
+    properties:
+      camp_id:
+        type: string
+      capacity:
+        type: integer
+      description:
+        type: string
+      end_time:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      start_time:
+        type: string
+      status:
+        $ref: '#/definitions/api_gateway.ShiftStatus'
+    type: object
+  api_gateway.CreateShiftResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  api_gateway.DeleteCampResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  api_gateway.DeleteShiftResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  api_gateway.GetCampResponse:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  api_gateway.GetShiftResponse:
+    properties:
+      camp_id:
+        type: string
+      capacity:
+        type: integer
+      description:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      start_time:
+        type: string
+      status:
+        $ref: '#/definitions/api_gateway.ShiftStatus'
+    type: object
+  api_gateway.ListCampsResponse:
+    properties:
+      camps:
+        items:
+          $ref: '#/definitions/api_gateway.GetCampResponse'
+        type: array
+    type: object
+  api_gateway.ListShiftsResponse:
+    properties:
+      shifts:
+        items:
+          $ref: '#/definitions/api_gateway.GetShiftResponse'
+        type: array
+    type: object
+  api_gateway.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  api_gateway.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  api_gateway.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  api_gateway.RegisterResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  api_gateway.ShiftStatus:
+    description: Status of shift
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-comments:
+      ShiftStatusActive: "1"
+      ShiftStatusInactive: "2"
+      ShiftStatusUnknown: "0"
+    x-enum-descriptions:
+    - "0"
+    - "1"
+    - "2"
+    x-enum-varnames:
+    - ShiftStatusUnknown
+    - ShiftStatusActive
+    - ShiftStatusInactive
+  api_gateway.UpdateCampRequest:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  api_gateway.UpdateCampResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  api_gateway.UpdateShiftRequest:
+    properties:
+      camp_id:
+        type: string
+      capacity:
+        type: integer
+      description:
+        type: string
+      end_time:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      start_time:
+        type: string
+      status:
+        $ref: '#/definitions/api_gateway.ShiftStatus'
+    type: object
+  api_gateway.UpdateShiftResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+host: localhost
+info:
+  contact: {}
+  description: API для бронирования лагерей
+  title: Camp Booking API
+  version: "1.0"
+paths:
+  /camps:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.ListCampsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Список лагерей
+      tags:
+      - Camps
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Camp data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api_gateway.CreateCampRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.CreateCampResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Создать лагерь
+      tags:
+      - Camps
+  /camps/{id}:
+    delete:
+      parameters:
+      - description: Camp ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.DeleteCampResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Удалить лагерь
+      tags:
+      - Camps
+    get:
+      parameters:
+      - description: Camp ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.GetCampResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получить лагерь
+      tags:
+      - Camps
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Camp ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Camp data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api_gateway.UpdateCampRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.UpdateCampResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Обновить лагерь
+      tags:
+      - Camps
+  /camps/{id}/assign:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Camp ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api_gateway.AssignDirectorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.AssignDirectorResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Назначить директора
+      tags:
+      - Camps
+  /camps/{id}/shifts:
+    get:
+      parameters:
+      - description: Camp ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.ListShiftsResponse'
+      security:
+      - BearerAuth: []
+      summary: Список смен лагеря
+      tags:
+      - Shifts
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api_gateway.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Логин
+      tags:
+      - Auth
+  /registration:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Register data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api_gateway.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Регистрация
+      tags:
+      - Auth
+  /shifts:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.ListShiftsResponse'
+      security:
+      - BearerAuth: []
+      summary: Список смен
+      tags:
+      - Shifts
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Shift data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api_gateway.CreateShiftRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.CreateShiftResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Создать смену
+      tags:
+      - Shifts
+  /shifts/{id}:
+    delete:
+      parameters:
+      - description: Shift ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.DeleteShiftResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Удалить смену
+      tags:
+      - Shifts
+    get:
+      parameters:
+      - description: Shift ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.GetShiftResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получить смену
+      tags:
+      - Shifts
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Shift ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Shift data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api_gateway.UpdateShiftRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.UpdateShiftResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Обновить смену
+      tags:
+      - Shifts
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
