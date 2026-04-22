@@ -48,11 +48,8 @@ func (s *Service) authorize(ctx context.Context, action string, campID string) e
 		}
 		return fmt.Errorf("authorize: forbidden for director")
 	}
-	if !isDirector {
-		if action == ActionGetCamp || action == ActionListCamps || action == ActionGetShift || action == ActionListCampShifts || action == ActionBookShift {
-			return nil
-		}
-		return fmt.Errorf("authorize: forbidden for user")
+	if action == ActionGetCamp || action == ActionListCamps || action == ActionGetShift || action == ActionListCampShifts || action == ActionBookShift {
+		return nil
 	}
 	return fmt.Errorf("forbidden")
 }
