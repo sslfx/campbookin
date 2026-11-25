@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS shifts(
     end_time TIMESTAMP NOT NULL,
     price INT NOT NULL,
     capacity INT NOT NULL,
+    count_bookings INT NOT NULL DEFAULT 0 ,
     status INT NOT NULL
 
 );
@@ -38,6 +39,18 @@ CREATE TABLE IF NOT EXISTS bookings (
     created_at TIMESTAMP DEFAULT NOW(),
     UNIQUE (user_id, shift_id)
 );
+CREATE TABLE IF NOT EXISTS participants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    full_name VARCHAR(255) NOT NULL,
+    gender CHAR(1) NOT NULL,
+    birth_date DATE NOT NULL,
+    age INT NOT NULL,
+    parent_name VARCHAR(255),
+    parent_phone VARCHAR(20),
+    organization VARCHAR(255) DEFAULT '',
+    shift_id UUID NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
 INSERT INTO users (id, email, password_hash, role, name)
 VALUES (
            gen_random_uuid(),
@@ -51,3 +64,5 @@ DROP TABLE IF EXISTS shifts;
 DROP TABLE IF EXISTS camp_users;
 DROP TABLE IF EXISTS camps;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS participants

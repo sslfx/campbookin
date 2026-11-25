@@ -39,7 +39,7 @@ func Interceptor() grpc.UnaryServerInterceptor {
 }
 
 func GetUserIDFromContext(ctx context.Context) string {
-	value := ctx.Value("userID")
+	value := ctx.Value(userIDKey)
 	if value == nil {
 		return ""
 	}

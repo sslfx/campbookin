@@ -10,6 +10,11 @@ definitions:
       success:
         type: boolean
     type: object
+  api_gateway.BookShiftResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   api_gateway.CreateCampRequest:
     properties:
       address:
@@ -556,6 +561,30 @@ paths:
       summary: Обновить смену
       tags:
       - Shifts
+  /shifts/{id}/book:
+    post:
+      parameters:
+      - description: Shift ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_gateway.BookShiftResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Забронировать смену
+      tags:
+      - Booking
 securityDefinitions:
   BearerAuth:
     in: header

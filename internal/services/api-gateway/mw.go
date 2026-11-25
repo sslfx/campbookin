@@ -17,8 +17,9 @@ const userIDKey contextKey = "userID"
 
 func (gw *Gateway) RateLimiterMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID, ok := r.Context().Value("userID").(string)
+		userID, ok := r.Context().Value(userIDKey).(string)
 		if !ok {
+			http.Error(w, "user unauthorized for rate limiting", http.StatusUnauthorized)
 			return
 		}
 		ctx := r.Context()
@@ -75,7 +76,7 @@ func (gw *Gateway) JWTMiddleware(next http.Handler) http.Handler {
 	})
 }
 func (gw *Gateway) withAuthContext(req *http.Request) context.Context {
-	userID, ok := req.Context().Value("userID").(string)
+	userID, ok := req.Context().Value(userIDKey).(string)
 	if !ok {
 		userID = ""
 	}

@@ -26,7 +26,6 @@ func NewHandler(service *Service, log *slog.Logger) *Handler {
 func (h *Handler) Assign(ctx context.Context, req *pb.AssignRequest) (*pb.AssignResponse, error) {
 
 	h.logger.Info("AssignDirector: called")
-
 	err := h.service.Assign(ctx, req.GetUserId(), req.GetCampId())
 	if err != nil {
 		h.logger.Error("AssignDirector error", "error", err.Error())

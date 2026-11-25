@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampBooking - Летние лагеря для детей</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FFD23F;
+            --dark: #1A1D29;
+            --light: #F7F9FC;
+            --success: #06D6A0;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--secondary) 0%, #003D6D 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 20s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            padding: 4rem 0;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 210, 63, 0.2);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: clamp(3rem, 8vw, 6rem);
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            animation: slideInLeft 0.8s ease-out 0.2s both;
+        }
+
+        .hero h1 span {
+            color: var(--accent);
+            display: block;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            animation: slideInLeft 0.8s ease-out 0.4s both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            animation: slideInLeft 0.8s ease-out 0.6s both;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #FF5722;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--secondary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+            transform: translateY(-3px);
+        }
+
+        /* FEATURES SECTION */
+        .features {
+            padding: 8rem 0;
+            background: white;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-title h2 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, var(--light) 0%, white 100%);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 2px solid transparent;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(255, 107, 53, 0.2);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.7;
+            font-size: 1.05rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* CAMPS SECTION */
+        .camps {
+            padding: 8rem 0;
+            background: linear-gradient(180deg, white 0%, var(--light) 100%);
+        }
+
+        .camps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 4rem;
+        }
+
+        .camp-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .camp-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        .camp-image {
+            height: 250px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camp-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+        }
+
+        .camp-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 2;
+        }
+
+        .camp-content {
+            padding: 2rem;
+        }
+
+        .camp-content h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .camp-location {
+            color: #999;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .camp-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .camp-price span {
+            font-size: 1rem;
+            color: #999;
+            font-weight: 400;
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2.5rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+
+        .footer-links h4 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .footer-links a {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            margin-bottom: 0.75rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .camps-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function LandingPage() {
+            const [camps] = useState([
+                {
+                    id: 1,
+                    name: "Зарница",
+                    location: "Московская область",
+                    price: "45 000",
+                    badge: "Популярно"
+                },
+                {
+                    id: 2,
+                    name: "Орлёнок",
+                    location: "Краснодарский край",
+                    price: "52 000",
+                    badge: "Осталось 5 мест"
+                },
+                {
+                    id: 3,
+                    name: "Артек Junior",
+                    location: "Крым",
+                    price: "48 000",
+                    badge: "Новинка"
+                }
+            ]);
+
+            const handleRegister = () => {
+                window.location.href = '/auth.html';
+            };
+
+            const handleLogin = () => {
+                window.location.href = '/auth.html';
+            };
+
+            return (
+                <>
+                    {/* HERO SECTION */}
+                    <section className="hero">
+                        <div className="container">
+                            <div className="hero-content">
+                                <div className="hero-badge">🏕️ Лето 2026</div>
+                                <h1>
+                                    Незабываемое <span>лето для детей</span>
+                                </h1>
+                                <p>
+                                    Бронируйте места в лучших детских лагерях России онлайн. 
+                                    Безопасно, удобно, с гарантией лучшей цены.
+                                </p>
+                                <div className="cta-buttons">
+                                    <button className="btn btn-primary" onClick={handleRegister}>
+                                        📅 Забронировать место
+                                    </button>
+                                    <button className="btn btn-secondary" onClick={handleLogin}>
+                                        🔑 Войти в кабинет
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* FEATURES SECTION */}
+                    <section className="features">
+                        <div className="container">
+                            <div className="section-title">
+                                <h2>Почему CampBooking?</h2>
+                                <p>Мы делаем бронирование простым и надёжным</p>
+                            </div>
+                            <div className="features-grid">
+                                <div className="feature-card">
+                                    <div className="feature-icon">🎯</div>
+                                    <h3>Проверенные лагеря</h3>
+                                    <p>Только лицензированные лагеря с проверенной репутацией и опытными вожатыми.</p>
+                                </div>
+                                <div className="feature-card">
+                                    <div className="feature-icon">⚡</div>
+                                    <h3>Моментальное бронирование</h3>
+                                    <p>Забронируйте место онлайн за 2 минуты. Путёвка придёт на email автоматически.</p>
+                                </div>
+                                <div className="feature-card">
+                                    <div className="feature-icon">🛡️</div>
+                                    <h3>Безопасные платежи</h3>
+                                    <p>Оплата картой через защищённое соединение. Возврат 100% при отмене за 7 дней.</p>
+                                </div>
+                                <div className="feature-card">
+                                    <div className="feature-icon">📱</div>
+                                    <h3>Личный кабинет</h3>
+                                    <p>Вся информация о бронированиях, документы и уведомления в одном месте.</p>
+                                </div>
+                                <div className="feature-card">
+                                    <div className="feature-icon">🌟</div>
+                                    <h3>Программы на любой вкус</h3>
+                                    <p>Спорт, творчество, наука, языки — найдите идеальную смену для вашего ребёнка.</p>
+                                </div>
+                                <div className="feature-card">
+                                    <div className="feature-icon">💬</div>
+                                    <h3>Поддержка 24/7</h3>
+                                    <p>Наша команда всегда на связи, чтобы помочь с любым вопросом.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* CAMPS SECTION */}
+                    <section className="camps">
+                        <div className="container">
+                            <div className="section-title">
+                                <h2>Популярные лагеря</h2>
+                                <p>Успейте забронировать места в топовых лагерях</p>
+                            </div>
+                            <div className="camps-grid">
+                                {camps.map(camp => (
+                                    <div key={camp.id} className="camp-card">
+                                        <div className="camp-image">
+                                            <div className="camp-badge">{camp.badge}</div>
+                                        </div>
+                                        <div className="camp-content">
+                                            <h3>{camp.name}</h3>
+                                            <div className="camp-location">
+                                                📍 {camp.location}
+                                            </div>
+                                            <div className="camp-price">
+                                                {camp.price} ₽ <span>/ смена</span>
+                                            </div>
+                                            <button className="btn btn-primary" style={{width: '100%'}}>
+                                                Подробнее
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* FOOTER */}
+                    <footer>
+                        <div className="container">
+                            <div className="footer-content">
+                                <div>
+                                    <div className="footer-logo">CampBooking</div>
+                                    <p style={{marginTop: '1rem', color: 'rgba(255,255,255,0.7)'}}>
+                                        Лучшие детские лагеря России в одном месте
+                                    </p>
+                                </div>
+                                <div className="footer-links">
+                                    <h4>Компания</h4>
+                                    <a href="#">О нас</a>
+                                    <a href="#">Контакты</a>
+                                    <a href="#">Вакансии</a>
+                                </div>
+                                <div className="footer-links">
+                                    <h4>Поддержка</h4>
+                                    <a href="#">FAQ</a>
+                                    <a href="#">Правила</a>
+                                    <a href="#">Возврат</a>
+                                </div>
+                                <div className="footer-links">
+                                    <h4>Партнёрам</h4>
+                                    <a href="#">Разместить лагерь</a>
+                                    <a href="#">API</a>
+                                    <a href="#">Документация</a>
+                                </div>
+                            </div>
+                            <div className="footer-bottom">
+                                © 2026 CampBooking. Все права защищены.
+                            </div>
+                        </div>
+                    </footer>
+                </>
+            );
+        }
+
+        ReactDOM.render(<LandingPage />, document.getElementById('root'));
+    </script>
+</body>
+</html>

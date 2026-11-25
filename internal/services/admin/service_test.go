@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -26,6 +27,26 @@ type mockAdminRepo struct {
 	UpdateCampFunc        func(ctx context.Context, camp *Camp) error
 	AssingFunc            func(ctx context.Context, userID, campID string) error
 	ListShiftsForCampFunc func(ctx context.Context, campID string) ([]*Shift, error)
+}
+type mockTx struct {
+	pgx.Tx
+}
+
+func (m *mockTx) Commit(ctx context.Context) error   { return nil }
+func (m *mockTx) Rollback(ctx context.Context) error { return nil }
+
+// Добавьте эти методы для mockAdminRepo:
+func (m *mockAdminRepo) StartTransaction(ctx context.Context) (pgx.Tx, error) {
+	return &mockTx{}, nil
+}
+func (m *mockAdminRepo) TransactionUpdateCountBookings(ctx context.Context, tx pgx.Tx, shiftID string) error {
+	return nil
+}
+func (m *mockAdminRepo) TransactionCreateBooking(ctx context.Context, tx pgx.Tx, shiftID, userID string) error {
+	if m.CreateBookingFunc != nil {
+		return m.CreateBookingFunc(ctx, shiftID, userID)
+	}
+	return nil
 }
 
 func (m *mockAdminRepo) GetUserRole(ctx context.Context, id string) (string, error) {

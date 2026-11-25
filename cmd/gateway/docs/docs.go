@@ -594,6 +594,45 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/shifts/{id}/book": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Забронировать смену",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Shift ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_gateway.BookShiftResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -606,6 +645,14 @@ const docTemplate = `{
             }
         },
         "api_gateway.AssignDirectorResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api_gateway.BookShiftResponse": {
             "type": "object",
             "properties": {
                 "success": {

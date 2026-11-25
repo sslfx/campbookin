@@ -1,0 +1,15 @@
+# Секреты и окружение
+.env
+.env.*
+!.env.example
+
+# Бинарники и артефакты сборки/тестов
+/main
+/bin/
+*.exe
+coverage*.txt
+ticket_*.pdf
+api_tests.http
+# ОС и IDE
+.DS_Store
+.idea/httpRequests/

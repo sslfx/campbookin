@@ -186,9 +186,9 @@ func (r *Repository) GetShift(ctx context.Context, id string) (*Shift, error) {
 	if id == "" {
 		return nil, fmt.Errorf("unauthenticated")
 	}
-	query := `SELECT id,camp_id,description,name,start_time,end_time,price,capacity,status FROM shifts WHERE id = $1`
+	query := `SELECT id,camp_id,description,name,start_time,end_time,price,capacity,count_bookings,status FROM shifts WHERE id = $1`
 	var shift Shift
-	err := r.pool.QueryRow(ctx, query, id).Scan(&shift.ID, &shift.CampID, &shift.Description, &shift.Name, &shift.StartTime, &shift.EndTime, &shift.Price, &shift.Capacity, &shift.Status)
+	err := r.pool.QueryRow(ctx, query, id).Scan(&shift.ID, &shift.CampID, &shift.Description, &shift.Name, &shift.StartTime, &shift.EndTime, &shift.Price, &shift.Capacity, &shift.CountBookings, &shift.Status)
 	if err != nil {
 		return nil, fmt.Errorf("GetShift: %w", err)
 	}
@@ -261,6 +261,38 @@ func (r *Repository) CreateBooking(ctx context.Context, shiftID, userID string) 
 	_, err := r.pool.Exec(ctx, query, id, userID, shiftID)
 	if err != nil {
 		return fmt.Errorf("CreateBooking: %w", err)
+	}
+	return nil
+}
+func (r *Repository) StartTransaction(ctx context.Context) (pgx.Tx, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("StartTransatction: %w", err)
+	}
+	return tx, nil
+}
+func (r *Repository) TransactionUpdateCountBookings(ctx context.Context, tx pgx.Tx, shiftID string) error {
+	query := `UPDATE shifts
+SET count_bookings = count_bookings + 1
+WHERE id = $1
+  AND count_bookings < capacity
+RETURNING id;`
+	ct, err := tx.Exec(ctx, query, shiftID)
+	if err != nil {
+		return fmt.Errorf("TransactionUpdateCountBookings: %w", err)
+	}
+	if ct.RowsAffected() == 0 {
+		err := errors.New("Zero rows affected: count_bookings > capacity")
+		return fmt.Errorf("TransactionUpdateCountBookings: %w", err)
+	}
+	return nil
+}
+func (r *Repository) TransactionCreateBooking(ctx context.Context, tx pgx.Tx, shiftID, userID string) error {
+	id := generageID()
+	query := `INSERT INTO bookings (id,user_id,shift_id) VALUES ($1, $2, $3)`
+	_, err := tx.Exec(ctx, query, id, userID, shiftID)
+	if err != nil {
+		return fmt.Errorf("TransactionCreateBooking: %w", err)
 	}
 	return nil
 }

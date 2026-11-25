@@ -8,6 +8,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/segmentio/kafka-go"
 )
@@ -31,6 +32,48 @@ const (
 	ActionBookShift = "shift.book" //all
 )
 
+type CampAdminRepository interface {
+	CreateCamp(ctx context.Context, camp *Camp) error
+	GetCamp(ctx context.Context, id string) (*Camp, error)
+	DeleteCamp(ctx context.Context, id string) error
+	ListCamps(ctx context.Context) ([]*Camp, error)
+	ListCampsDirector(ctx context.Context, userID string) ([]*Camp, error)
+	UpdateCamp(ctx context.Context, camp *Camp) error
+	IsDirector(ctx context.Context, userID, campID string) (bool, error)
+	Assing(ctx context.Context, userID, campID string) error
+	GetUserRole(ctx context.Context, userID string) (string, error)
+	CreateShift(ctx context.Context, shift *Shift) error
+	GetShift(ctx context.Context, id string) (*Shift, error)
+	CreateBooking(ctx context.Context, shiftID, userID string) error
+	DeleteShift(ctx context.Context, id string) error
+	UpdateShift(ctx context.Context, shift *Shift) error
+	ListShifts(ctx context.Context) ([]*Shift, error)
+	ListShiftsForCamp(ctx context.Context, campID string) ([]*Shift, error)
+	StartTransaction(ctx context.Context) (pgx.Tx, error)
+	TransactionCreateBooking(ctx context.Context, tx pgx.Tx, shiftID, userID string) error
+	TransactionUpdateCountBookings(ctx context.Context, tx pgx.Tx, shiftID string) error
+}
+type Service struct {
+	repo   CampAdminRepository
+	writer *kafka.Writer
+}
+
+func NewService(repo CampAdminRepository) *Service {
+	return &Service{
+		repo: repo,
+		writer: &kafka.Writer{
+			Addr:         kafka.TCP("kafka:9092"),
+			Topic:        "bookings.create",
+			Balancer:     &kafka.LeastBytes{},
+			BatchTimeout: 10 * time.Millisecond,
+		},
+	}
+}
+func (s *Service) Shutdown() error {
+	log.Println("Closing Kafka writer")
+	return s.writer.Close()
+}
+
 func (s *Service) authorize(ctx context.Context, action string, campID string) error {
 	userID := GetUserIDFromContext(ctx)
 	globalRole, err := s.repo.GetUserRole(ctx, userID)
@@ -52,44 +95,6 @@ func (s *Service) authorize(ctx context.Context, action string, campID string) e
 		return nil
 	}
 	return fmt.Errorf("forbidden")
-}
-
-type CampAdminRepository interface {
-	CreateCamp(ctx context.Context, camp *Camp) error
-	GetCamp(ctx context.Context, id string) (*Camp, error)
-	DeleteCamp(ctx context.Context, id string) error
-	ListCamps(ctx context.Context) ([]*Camp, error)
-	ListCampsDirector(ctx context.Context, userID string) ([]*Camp, error)
-	UpdateCamp(ctx context.Context, camp *Camp) error
-	IsDirector(ctx context.Context, userID, campID string) (bool, error)
-	Assing(ctx context.Context, userID, campID string) error
-	GetUserRole(ctx context.Context, userID string) (string, error)
-	CreateShift(ctx context.Context, shift *Shift) error
-	GetShift(ctx context.Context, id string) (*Shift, error)
-	CreateBooking(ctx context.Context, shiftID, userID string) error
-	DeleteShift(ctx context.Context, id string) error
-	UpdateShift(ctx context.Context, shift *Shift) error
-	ListShifts(ctx context.Context) ([]*Shift, error)
-	ListShiftsForCamp(ctx context.Context, campID string) ([]*Shift, error)
-}
-type Service struct {
-	repo   CampAdminRepository
-	writer *kafka.Writer
-}
-
-func NewService(repo CampAdminRepository) *Service {
-	return &Service{
-		repo: repo,
-		writer: &kafka.Writer{
-			Addr:     kafka.TCP("kafka:9092"),
-			Topic:    "bookings.create",
-			Balancer: &kafka.LeastBytes{},
-		},
-	}
-}
-func (s *Service) Shutdown() error {
-	log.Println("Closing Kafka writer")
-	return s.writer.Close()
 }
 func (s *Service) CreateCamp(ctx context.Context, name, description, address string) (*Camp, error) {
 	if err := s.authorize(ctx, ActionCreateCamp, ""); err != nil {
@@ -266,6 +271,7 @@ func (s *Service) ListShiftsForCamp(ctx context.Context, campID string) ([]*Shif
 	return shifts, nil
 }
 
+// begin->repo.CreateBooking&&kafka.write->commit
 func (s *Service) BookShift(ctx context.Context, shiftID, userID string) (bool, error) {
 	if userID == "" || shiftID == "" {
 		return false, fmt.Errorf("invalid input")
@@ -277,7 +283,15 @@ func (s *Service) BookShift(ctx context.Context, shiftID, userID string) (bool, 
 	if shift.EndTime.Before(time.Now()) {
 		return false, fmt.Errorf("shift is already active or expired")
 	}
-	if err := s.repo.CreateBooking(ctx, shift.ID, userID); err != nil {
+	tx, err := s.repo.StartTransaction(ctx)
+	if err != nil {
+		return false, fmt.Errorf("StartTransatctionServ: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	if err := s.repo.TransactionUpdateCountBookings(ctx, tx, shiftID); err != nil {
+		return false, fmt.Errorf("TransactionUpdateCountBookings: %w", err)
+	}
+	if err := s.repo.TransactionCreateBooking(ctx, tx, shift.ID, userID); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
@@ -307,5 +321,8 @@ func (s *Service) BookShift(ctx context.Context, shiftID, userID string) (bool, 
 	}
 
 	fmt.Println("DEBUG: Message successfully sent to Kafka!")
+	if err := tx.Commit(ctx); err != nil {
+		return false, fmt.Errorf("CommitErr: %w", err)
+	}
 	return true, nil
 }

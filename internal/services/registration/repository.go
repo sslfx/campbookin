@@ -41,7 +41,7 @@ func (r *Repository) GetUser(ctx context.Context, id string) (*User, error) {
 	var user User
 	err := r.pool.QueryRow(ctx, query, id).Scan(&user.ID, &user.Email, &user.PasswordHash, &user.Role, &user.Name)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, errors.New("GetUserRep:not found")
+		return nil, pgx.ErrNoRows
 	}
 	if err != nil {
 		return nil, fmt.Errorf("GetUser: %w", err)

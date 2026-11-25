@@ -2,19 +2,24 @@ services:
   redis:
     image: redis:7-alpine
     container_name: camp_redis
+    networks:
+      - camp_network
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
+
   postgres:
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: camp
+    networks:
+      - camp_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -23,6 +28,8 @@ services:
 
   kafka:
     image: apache/kafka:3.7.0
+    networks:
+      - camp_network
     environment:
       - KAFKA_NODE_ID=1
       - KAFKA_PROCESS_ROLES=broker,controller
@@ -40,7 +47,7 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "/build/scripts/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      test: ["CMD-SHELL", "opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -50,6 +57,8 @@ services:
       context: .
       dockerfile: ./internal/services/registration/Dockerfile
     env_file: .env
+    networks:
+      - camp_network
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,6 +68,8 @@ services:
       context: .
       dockerfile: ./internal/services/admin/Dockerfile
     env_file: .env
+    networks:
+      - camp_network
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,32 +79,45 @@ services:
       context: .
       dockerfile: ./internal/services/notification/Dockerfile
     env_file: .env
+    networks:
+      - camp_network
     depends_on:
-      - kafka
-      - redis
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   gateway:
     build:
       context: .
       dockerfile: ./internal/services/api-gateway/Dockerfile
     env_file: .env
+    networks:
+      - camp_network
     depends_on:
-      - reg
-      - admin
-      - redis
+      reg:
+        condition: service_started
+      admin:
+        condition: service_started
+      redis:
+        condition: service_healthy
 
   nginx:
     image: nginx:alpine
+    container_name: camp-frontend
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - camp_network
     depends_on:
       - gateway
 
 networks:
-  default:
-    name: camp_network
+  camp_network:
+    driver: bridge
+
 volumes:
   postgres_data:
   kafka_data:

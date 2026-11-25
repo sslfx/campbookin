@@ -426,11 +426,10 @@ type BookShiftResponse struct {
 // @Success 200 {object} BookShiftResponse
 // @Failure 429 {string} string
 // @Router /shifts/{id}/book [post]
-
 func (gw *Gateway) BookShift(w http.ResponseWriter, req *http.Request) {
 	shiftID := chi.URLParam(req, "id")
 	ctx := gw.withAuthContext(req)
-	userID, _ := req.Context().Value("userID").(string)
+	userID, _ := req.Context().Value(userIDKey).(string)
 
 	rateKey := fmt.Sprintf("rate:book:%s:%s", userID, shiftID)
 	val, err := gw.redis.Incr(ctx, rateKey).Result()
@@ -766,4 +765,14 @@ func (gw *Gateway) ListShiftsForCamp(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (gw *Gateway) CreatingAndDistribution(w http.ResponseWriter, req *http.Request) {
+	file, _, err := req.FormFile("file")
+	if err != nil {
+		log.Println("error reading form file")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	file.Close()
 }

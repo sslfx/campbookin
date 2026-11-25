@@ -11,9 +11,9 @@ import (
 
 func (n *NotificationService) StartKafkaListener(ctx context.Context, email, pass string) {
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{"kafka:9092"},
-		Topic:   "bookings.create",
-		//GroupID:     "notification-service-v4-а",
+		Brokers:     []string{"kafka:9092"},
+		Topic:       "bookings.create",
+		GroupID:     "notification-service",
 		StartOffset: kafka.FirstOffset,
 	})
 	defer func() { _ = reader.Close() }()

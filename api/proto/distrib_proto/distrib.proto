@@ -1,0 +1,28 @@
+syntax = "proto3";
+option go_package = "campbookin/api/proto_output";
+
+message DistrRequest{
+  bytes data = 1;
+  int32 countSquads = 2;
+  string shiftID = 3;
+}
+message DistrResponse{
+  bool success = 1;
+}
+message GetDistrRequest{}
+
+message GetDistrResponse{
+  bytes data = 1;
+}
+message HandMoveRequest{
+  string participantID = 1;
+  string roomID = 2;
+}
+message HandMoveResponse{
+  bool success = 1;
+}
+service CampDistrib{
+  rpc Distribution(DistrRequest) returns (DistrResponse);
+  rpc GetDistr(GetDistrRequest) returns (GetDistrResponse);
+  rpc HandMove(HandMoveRequest) returns (HandMoveResponse);
+}
